@@ -52,9 +52,13 @@
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">&nbsp;</label>
-                                <div class="d-flex gap-2">
-                                    <button type="submit" class="btn btn-primary">Filtrer</button>
-                                    <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary">Reset</a>
+                                <div class="btn-group" role="group">
+                                    <button type="submit" class="btn btn-primary" title="Filtrer">
+                                        <i class="mdi mdi-magnify"></i> Filtrer
+                                    </button>
+                                    <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary" title="Reset">
+                                        <i class="mdi mdi-refresh"></i> Reset
+                                    </a>
                                 </div>
                             </div>
                         </form>
@@ -67,14 +71,18 @@
         @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
         @endif
 
         @if(session('error'))
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 {{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
             </div>
         @endif
 
