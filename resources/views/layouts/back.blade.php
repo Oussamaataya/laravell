@@ -750,6 +750,28 @@
             </a>
           </li>
 
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('admin.collectes.index') }}" data-toggle="collapse" aria-expanded="false" aria-controls="collectesSubmenu">
+                                    <i class="ti-money menu-icon"></i>
+                                    <span class="menu-title">Gestion de Collecte</span>
+                                    <i class="menu-arrow"></i>
+                                </a>
+                                <div class="collapse" id="collectesSubmenu">
+                                    <ul class="nav flex-column sub-menu">
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="{{ route('admin.collectes.index') }}">
+                                                Collectes
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="{{ route('admin.campagnes.index') }}">
+                                                Campagnes
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
           <li class="nav-item">
             <a class="nav-link" href="{{ route('home') }}" target="_blank">
               <i class="icon-globe menu-icon"></i>
@@ -781,8 +803,8 @@
   @vite(['resources/assets-back/vendors/datatables.net-bs4/dataTables.bootstrap4.js'])
   @vite(['resources/assets-back/js/dataTables.select.min.js'])
   @vite(['resources/assets-back/js/off-canvas.js'])
-  <!-- DÉSACTIVÉ: hoverable-collapse.js pour éviter les conflits -->
-  <!-- DÉSACTIVÉ: template.js pour éviter les conflits -->
+  @vite(['resources/assets-back/js/hoverable-collapse.js'])
+  @vite(['resources/assets-back/js/template.js'])
   @vite(['resources/assets-back/js/settings.js'])
   @vite(['resources/assets-back/js/todolist.js'])
   @vite(['resources/assets-back/js/dashboard.js'])
