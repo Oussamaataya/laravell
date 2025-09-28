@@ -640,9 +640,11 @@
     <!-- Navbar -->
     <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
       <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
-        <a class="navbar-brand brand-logo mr-5" href="{{ route('admin.dashboard') }}">
-          <img src="{{ Vite::asset('resources/assets-back/images/logo.svg') }}" class="mr-2" alt="EcoEvent">
-        </a>
+        <div class="col-auto">
+  <a class="navbar-brand text-black font-bold text-3xl" href="index.html">
+    ECO EVENT
+  </a>
+</div>
         <a class="navbar-brand brand-logo-mini" href="{{ route('admin.dashboard') }}">
           <img src="{{ Vite::asset('resources/assets-back/images/logo-mini.svg') }}" alt="EcoEvent">
         </a>
@@ -751,6 +753,50 @@
           </li>
 
           <li class="nav-item">
+              <a class="nav-link" href="{{ route('admin.reclamations.index') }}" data-toggle="collapse" aria-expanded="false" aria-controls="reclamationsSubmenu">
+                  <i class="ti-alert-circle menu-icon"></i>
+                  <span class="menu-title">Gestion Reclamations</span>
+                  <i class="menu-arrow"></i>
+              </a>
+              <div class="collapse" id="reclamationsSubmenu">
+                  <ul class="nav flex-column sub-menu">
+                      <li class="nav-item">
+                          <a class="nav-link" href="{{ route('admin.reclamations.index') }}">
+                              Reclamations
+                          </a>
+                      </li>
+                      <li class="nav-item">
+                          <a class="nav-link" href="{{ route('admin.avis.index') }}">
+                              Avis
+                          </a>
+                      </li>
+                  </ul>
+              </div>
+          </li>
+
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('admin.collectes.index') }}" data-toggle="collapse" aria-expanded="false" aria-controls="collectesSubmenu">
+                                    <i class="ti-money menu-icon"></i>
+                                    <span class="menu-title">Gestion de Collecte</span>
+                                    <i class="menu-arrow"></i>
+                                </a>
+                                <div class="collapse" id="collectesSubmenu">
+                                    <ul class="nav flex-column sub-menu">
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="{{ route('admin.collectes.index') }}">
+                                                Collectes
+                                            </a>
+                                        </li>
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="{{ route('admin.campagnes.index') }}">
+                                                Campagnes
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </li>
+
+          <li class="nav-item">
             <a class="nav-link" href="{{ route('home') }}" target="_blank">
               <i class="icon-globe menu-icon"></i>
               <span class="menu-title">Voir le site</span>
@@ -781,8 +827,8 @@
   @vite(['resources/assets-back/vendors/datatables.net-bs4/dataTables.bootstrap4.js'])
   @vite(['resources/assets-back/js/dataTables.select.min.js'])
   @vite(['resources/assets-back/js/off-canvas.js'])
-  <!-- DÉSACTIVÉ: hoverable-collapse.js pour éviter les conflits -->
-  <!-- DÉSACTIVÉ: template.js pour éviter les conflits -->
+  @vite(['resources/assets-back/js/hoverable-collapse.js'])
+  @vite(['resources/assets-back/js/template.js'])
   @vite(['resources/assets-back/js/settings.js'])
   @vite(['resources/assets-back/js/todolist.js'])
   @vite(['resources/assets-back/js/dashboard.js'])

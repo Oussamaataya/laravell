@@ -23,9 +23,11 @@
     <!-- Navbar -->
     <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row">
       <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
-        <a class="navbar-brand brand-logo mr-5" href="{{ route('admin.dashboard') }}">
-          <img src="{{ Vite::asset('resources/assets-back/images/logo.svg') }}" class="mr-2" alt="EcoEvent">
-        </a>
+        <div class="col-auto">
+  <a class="navbar-brand text-black font-bold text-3xl" href="index.html">
+    ECO EVENT
+  </a>
+</div>
         <a class="navbar-brand brand-logo-mini" href="{{ route('admin.dashboard') }}">
           <img src="{{ Vite::asset('resources/assets-back/images/logo-mini.svg') }}" alt="EcoEvent">
         </a>
