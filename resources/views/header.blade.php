@@ -40,6 +40,11 @@
                   <a class="nav-link" href="{{ route('reclamations.index') }}">Reclamations</a>
                 </li>
                 <li class="nav-item">
+                  <a class="nav-link" href="{{ route('publications.index') }}">
+                    <i class="fas fa-newspaper me-1"></i>Publications
+                  </a>
+                </li>
+                <li class="nav-item">
                   <a class="nav-link" href="#">Contact</a>
                 </li>
                 

@@ -33,7 +33,33 @@
 
         <!-- Statistiques -->
         <div class="row">
-            <div class="col-md-6 grid-margin stretch-card">
+            <div class="col-md-4 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title mb-0">Publications</h4>
+                                <h2 class="text-primary font-weight-bold">{{ \App\Models\Publication::count() }}</h2>
+                                <p class="text-muted mb-0">Total des publications</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="ti-book text-primary" style="font-size: 2.5rem;"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="d-flex justify-content-between">
+                                <small class="text-muted">Approuvées</small>
+                                <small class="text-success">{{ \App\Models\Publication::where('is_approved', true)->count() }}</small>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <small class="text-muted">En attente</small>
+                                <small class="text-warning">{{ \App\Models\Publication::where('is_approved', false)->count() }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 grid-margin stretch-card">
                 <div class="card tale-bg">
                     <div class="card-people mt-auto">
                         <img src="{{ Vite::asset('resources/assets-back/images/dashboard/people.svg') }}" alt="people">
@@ -51,7 +77,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-6 grid-margin stretch-card">
+            <div class="col-md-4 grid-margin stretch-card">
                 <div class="card">
                     <div class="card-body">
                         <p class="card-title">Statistiques utilisateurs</p>
@@ -113,6 +139,16 @@
                                         <td>Créer un utilisateur</td>
                                         <td>Ajouter un nouveau compte utilisateur</td>
                                         <td><a href="{{ route('admin.users.create') }}" class="btn btn-outline-success btn-sm">Créer</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Gestion des publications</td>
+                                        <td>Voir et gérer toutes les publications</td>
+                                        <td><a href="{{ route('publications.index') }}" class="btn btn-outline-primary btn-sm">Accéder</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Créer une publication</td>
+                                        <td>Ajouter une nouvelle publication</td>
+                                        <td><a href="{{ route('publications.create') }}" class="btn btn-outline-success btn-sm">Créer</a></td>
                                     </tr>
                                     <tr>
                                         <td>Mon profil</td>

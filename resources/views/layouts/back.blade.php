@@ -753,6 +753,13 @@
           </li>
 
           <li class="nav-item">
+            <a class="nav-link" href="{{ route('publications.index') }}">
+              <i class="ti-book menu-icon"></i>
+              <span class="menu-title">Publications</span>
+            </a>
+          </li>
+
+          <li class="nav-item">
               <a class="nav-link" href="{{ route('admin.reclamations.index') }}" data-toggle="collapse" aria-expanded="false" aria-controls="reclamationsSubmenu">
                   <i class="ti-alert-circle menu-icon"></i>
                   <span class="menu-title">Gestion Reclamations</span>

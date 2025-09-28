@@ -10,6 +10,9 @@ use App\Http\Controllers\CampagneController;
 use App\Http\Controllers\CollecteController;
 use App\Http\Controllers\ReclamationController;
 use App\Http\Controllers\AvisController;
+use App\Http\Controllers\PublicationController;
+use App\Http\Controllers\CommentaireController;
+use App\Http\Controllers\LikeController;
 
 //gestion _collecte
 Route::resource('campagnes', CampagneController::class);
@@ -37,6 +40,32 @@ Route::get('/reclamations/{reclamation}', [ReclamationController::class, 'public
 Route::post('/reclamations/{reclamation}/avis', [AvisController::class, 'publicStore'])->name('reclamations.avis.store')->middleware('auth');
 Route::middleware('auth')->group(function () {
     Route::post('/reclamations', [ReclamationController::class, 'publicStore'])->name('reclamations.store');
+});
+
+// Routes pour les publications
+Route::get('/publications', [PublicationController::class, 'index'])->name('publications.index');
+
+// Routes pour les publications (authentifiées)
+Route::middleware('auth')->group(function () {
+    Route::get('/publications/create', [PublicationController::class, 'create'])->name('publications.create');
+    Route::post('/publications', [PublicationController::class, 'store'])->name('publications.store');
+    Route::get('/publications/{publication}/edit', [PublicationController::class, 'edit'])->name('publications.edit');
+    Route::put('/publications/{publication}', [PublicationController::class, 'update'])->name('publications.update');
+    Route::delete('/publications/{publication}', [PublicationController::class, 'destroy'])->name('publications.destroy');
+});
+
+// Route pour afficher une publication spécifique (doit être après les routes spécifiques)
+Route::get('/publications/{publication}', [PublicationController::class, 'show'])->name('publications.show');
+
+// Routes pour les commentaires et likes (authentifiées)
+Route::middleware('auth')->group(function () {
+    // Routes pour les commentaires
+    Route::post('/publications/{publication}/commentaires', [CommentaireController::class, 'store'])->name('commentaires.store');
+    Route::put('/commentaires/{commentaire}', [CommentaireController::class, 'update'])->name('commentaires.update');
+    Route::delete('/commentaires/{commentaire}', [CommentaireController::class, 'destroy'])->name('commentaires.destroy');
+    
+    // Routes pour les likes
+    Route::post('/publications/{publication}/like', [LikeController::class, 'toggleLike'])->name('publications.like');
 });
 
 // Routes utilisateurs authentifiés
