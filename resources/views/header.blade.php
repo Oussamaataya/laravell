@@ -45,6 +45,11 @@
                   </a>
                 </li>
                 <li class="nav-item">
+                  <a class="nav-link" href="{{ route('recyclages.index') }}">
+                    <i class="fas fa-recycle me-1"></i>Recyclage
+                  </a>
+                </li>
+                <li class="nav-item">
                   <a class="nav-link" href="#">Contact</a>
                 </li>
                 

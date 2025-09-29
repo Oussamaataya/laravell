@@ -13,6 +13,8 @@ use App\Http\Controllers\AvisController;
 use App\Http\Controllers\PublicationController;
 use App\Http\Controllers\CommentaireController;
 use App\Http\Controllers\LikeController;
+use App\Http\Controllers\TypeRecyclageController;
+use App\Http\Controllers\RecyclageController;
 
 //gestion _collecte
 Route::resource('campagnes', CampagneController::class);
@@ -56,6 +58,22 @@ Route::middleware('auth')->group(function () {
 
 // Route pour afficher une publication spécifique (doit être après les routes spécifiques)
 Route::get('/publications/{publication}', [PublicationController::class, 'show'])->name('publications.show');
+
+// Routes pour le recyclage
+Route::get('/recyclages', [RecyclageController::class, 'index'])->name('recyclages.index');
+
+// Routes pour le recyclage (authentifiées) - AVANT la route show pour éviter les conflits
+Route::middleware('auth')->group(function () {
+    Route::get('/recyclages/create', [RecyclageController::class, 'create'])->name('recyclages.create');
+    Route::post('/recyclages', [RecyclageController::class, 'store'])->name('recyclages.store');
+    Route::get('/recyclages/{recyclage}/edit', [RecyclageController::class, 'edit'])->name('recyclages.edit');
+    Route::put('/recyclages/{recyclage}', [RecyclageController::class, 'update'])->name('recyclages.update');
+    Route::delete('/recyclages/{recyclage}', [RecyclageController::class, 'destroy'])->name('recyclages.destroy');
+});
+
+// Route show APRÈS les routes spécifiques pour éviter les conflits
+Route::get('/recyclages/{recyclage}', [RecyclageController::class, 'show'])->name('recyclages.show');
+
 
 // Routes pour les commentaires et likes (authentifiées)
 Route::middleware('auth')->group(function () {
@@ -123,6 +141,9 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::put('avis/{avis}', [AvisController::class, 'updateTopLevel'])->name('avis.update');
     Route::delete('avis/{avis}', [AvisController::class, 'destroyTopLevel'])->name('avis.destroy');
     Route::resource('reclamations.avis', AvisController::class)->parameters(['avis' => 'avis']);
+
+    // Gestion des types de recyclage (admin seulement)
+    Route::resource('type-recyclages', TypeRecyclageController::class);
 
 });
 

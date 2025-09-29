@@ -60,6 +60,32 @@
                 </div>
             </div>
             <div class="col-md-4 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <h4 class="card-title mb-0">Recyclages</h4>
+                                <h2 class="text-success font-weight-bold">{{ \App\Models\Recyclage::count() }}</h2>
+                                <p class="text-muted mb-0">Initiatives de recyclage</p>
+                            </div>
+                            <div class="align-self-center">
+                                <i class="ti-reload text-success" style="font-size: 2.5rem;"></i>
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <div class="d-flex justify-content-between">
+                                <small class="text-muted">Planifiés</small>
+                                <small class="text-primary">{{ \App\Models\Recyclage::where('statut', 'planifie')->count() }}</small>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <small class="text-muted">Terminés</small>
+                                <small class="text-success">{{ \App\Models\Recyclage::where('statut', 'termine')->count() }}</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 grid-margin stretch-card">
                 <div class="card tale-bg">
                     <div class="card-people mt-auto">
                         <img src="{{ Vite::asset('resources/assets-back/images/dashboard/people.svg') }}" alt="people">
@@ -149,6 +175,16 @@
                                         <td>Créer une publication</td>
                                         <td>Ajouter une nouvelle publication</td>
                                         <td><a href="{{ route('publications.create') }}" class="btn btn-outline-success btn-sm">Créer</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Gestion du recyclage</td>
+                                        <td>Voir et gérer les initiatives de recyclage</td>
+                                        <td><a href="{{ route('recyclages.index') }}" class="btn btn-outline-primary btn-sm">Accéder</a></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Types de recyclage</td>
+                                        <td>Gérer les types de matériaux recyclables</td>
+                                        <td><a href="{{ route('admin.type-recyclages.index') }}" class="btn btn-outline-info btn-sm">Gérer</a></td>
                                     </tr>
                                     <tr>
                                         <td>Mon profil</td>

@@ -760,6 +760,28 @@
           </li>
 
           <li class="nav-item">
+              <a class="nav-link" href="{{ route('recyclages.index') }}" data-toggle="collapse" aria-expanded="false" aria-controls="recyclageSubmenu">
+                  <i class="ti-reload menu-icon"></i>
+                  <span class="menu-title">Recyclage</span>
+                  <i class="menu-arrow"></i>
+              </a>
+              <div class="collapse" id="recyclageSubmenu">
+                  <ul class="nav flex-column sub-menu">
+                      <li class="nav-item">
+                          <a class="nav-link" href="{{ route('recyclages.index') }}">
+                              Recyclages
+                          </a>
+                      </li>
+                      <li class="nav-item">
+                          <a class="nav-link" href="{{ route('admin.type-recyclages.index') }}">
+                              Types de Recyclage
+                          </a>
+                      </li>
+                  </ul>
+              </div>
+          </li>
+
+          <li class="nav-item">
               <a class="nav-link" href="{{ route('admin.reclamations.index') }}" data-toggle="collapse" aria-expanded="false" aria-controls="reclamationsSubmenu">
                   <i class="ti-alert-circle menu-icon"></i>
                   <span class="menu-title">Gestion Reclamations</span>
