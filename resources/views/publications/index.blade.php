@@ -30,7 +30,24 @@
             <div class="col-md-6 col-lg-4">
                 <div class="card h-100 shadow-sm">
                     @if($publication->image)
-                        <img src="{{ asset('storage/' . $publication->image) }}" class="card-img-top" alt="{{ $publication->titre }}" style="height: 200px; object-fit: cover;">
+                        @php
+                            $imgSrc = null;
+                            // if image exists on the public disk (storage/app/public)
+                            if (\Illuminate\Support\Facades\Storage::disk('public')->exists($publication->image)) {
+                                $imgSrc = asset('storage/' . $publication->image);
+                            }
+                            // else if it's a legacy public path like 'images/publications/..'
+                            elseif (file_exists(public_path($publication->image))) {
+                                $imgSrc = asset($publication->image);
+                            }
+                        @endphp
+                        @if($imgSrc)
+                            <img src="{{ $imgSrc }}" class="card-img-top" alt="{{ $publication->titre }}" style="height: 200px; object-fit: cover;">
+                        @else
+                            <div class="bg-light text-center py-5">
+                                <i class="fas fa-image fa-3x text-muted"></i>
+                            </div>
+                        @endif
                     @else
                         <div class="bg-light text-center py-5">
                             <i class="fas fa-image fa-3x text-muted"></i>

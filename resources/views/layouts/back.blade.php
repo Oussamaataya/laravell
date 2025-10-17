@@ -753,9 +753,15 @@
           </li>
 
           <li class="nav-item">
-            <a class="nav-link" href="{{ route('publications.index') }}">
+            <a class="nav-link" href="{{ route('admin.publications.index') }}">
               <i class="ti-book menu-icon"></i>
-              <span class="menu-title">Publications</span>
+              <span class="menu-title">Gestion Publications</span>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ route('admin.commentaires.index') }}">
+              <i class="ti-comments menu-icon"></i>
+              <span class="menu-title">Commentaires Publications</span>
             </a>
           </li>
 

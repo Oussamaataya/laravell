@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Admin\EventController as AdminEventController;
+use App\Http\Controllers\Admin\PublicationController as AdminPublicationController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\EventRegistrationController;
 use Illuminate\Support\Facades\Route;
@@ -46,6 +47,18 @@ Route::middleware('auth')->group(function () {
 
 // Routes pour les publications
 Route::get('/publications', [PublicationController::class, 'index'])->name('publications.index');
+
+// Routes pour l'administration des publications
+Route::middleware(['auth', 'admin'])->group(function () {
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::resource('publications', AdminPublicationController::class);
+        Route::patch('publications/{publication}/approve', [AdminPublicationController::class, 'approvePublication'])->name('publications.approve');
+
+        // Gestion des commentaires
+        Route::get('commentaires', [\App\Http\Controllers\Admin\CommentaireController::class, 'index'])->name('commentaires.index');
+        Route::delete('commentaires/{commentaire}', [\App\Http\Controllers\Admin\CommentaireController::class, 'destroy'])->name('commentaires.destroy');
+    });
+});
 
 // Routes pour les publications (authentifiées)
 Route::middleware('auth')->group(function () {

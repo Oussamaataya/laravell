@@ -42,15 +42,25 @@
                         <div class="mb-3">
                             <label for="image" class="form-label">Image</label>
                             @if($publication->image)
-                                <div class="mb-2">
-                                    <img src="{{ asset('storage/' . $publication->image) }}" alt="{{ $publication->titre }}" class="img-thumbnail" style="max-height: 200px;">
-                                    <div class="form-check mt-2">
-                                        <input class="form-check-input" type="checkbox" id="delete_image" name="delete_image">
-                                        <label class="form-check-label" for="delete_image">
-                                            Supprimer l'image actuelle
-                                        </label>
+                                @php
+                                    $imgSrc = null;
+                                    if (\Illuminate\Support\Facades\Storage::disk('public')->exists($publication->image)) {
+                                        $imgSrc = asset('storage/' . $publication->image);
+                                    } elseif (file_exists(public_path($publication->image))) {
+                                        $imgSrc = asset($publication->image);
+                                    }
+                                @endphp
+                                @if($imgSrc)
+                                    <div class="mb-2">
+                                        <img src="{{ $imgSrc }}" alt="{{ $publication->titre }}" class="img-thumbnail" style="max-height: 200px;">
+                                        <div class="form-check mt-2">
+                                            <input class="form-check-input" type="checkbox" id="delete_image" name="delete_image">
+                                            <label class="form-check-label" for="delete_image">
+                                                Supprimer l'image actuelle
+                                            </label>
+                                        </div>
                                     </div>
-                                </div>
+                                @endif
                             @endif
                             <input type="file" class="form-control @error('image') is-invalid @enderror" id="image" name="image" accept="image/*">
                             <div class="form-text">Formats acceptés: JPG, PNG, GIF. Taille maximale: 2MB</div>

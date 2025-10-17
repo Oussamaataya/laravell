@@ -53,9 +53,19 @@
             </div>
 
             @if($publication->image)
-                <div class="text-center my-4">
-                    <img src="{{ asset('storage/' . $publication->image) }}" class="img-fluid rounded" alt="{{ $publication->titre }}" style="max-height: 400px;">
-                </div>
+                @php
+                    $imgSrc = null;
+                    if (\Illuminate\Support\Facades\Storage::disk('public')->exists($publication->image)) {
+                        $imgSrc = asset('storage/' . $publication->image);
+                    } elseif (file_exists(public_path($publication->image))) {
+                        $imgSrc = asset($publication->image);
+                    }
+                @endphp
+                @if($imgSrc)
+                    <div class="text-center my-4">
+                        <img src="{{ $imgSrc }}" class="img-fluid rounded" alt="{{ $publication->titre }}" style="max-height: 400px;">
+                    </div>
+                @endif
             @endif
 
             <div class="my-4">
