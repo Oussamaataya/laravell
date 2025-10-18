@@ -764,6 +764,12 @@
               <span class="menu-title">Commentaires Publications</span>
             </a>
           </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ route('assistant.chat') }}">
+              <i class="ti-help-alt menu-icon"></i>
+              <span class="menu-title">Assistant IA</span>
+            </a>
+          </li>
 
           <li class="nav-item">
               <a class="nav-link" href="{{ route('recyclages.index') }}" data-toggle="collapse" aria-expanded="false" aria-controls="recyclageSubmenu">

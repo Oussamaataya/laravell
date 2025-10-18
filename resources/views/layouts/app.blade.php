@@ -201,5 +201,9 @@
   <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
 
   @stack('scripts')
+  
+  @auth
+    <x-chat-button :show="false" :messages="[]" />
+  @endauth
 </body>
 </html>

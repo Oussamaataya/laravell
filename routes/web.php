@@ -16,6 +16,14 @@ use App\Http\Controllers\CommentaireController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\TypeRecyclageController;
 use App\Http\Controllers\RecyclageController;
+use App\Http\Controllers\AIAssistantController;
+
+// AI Assistant Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/assistant', [AIAssistantController::class, 'index'])->name('assistant.chat');
+    Route::post('/assistant/send', [AIAssistantController::class, 'sendMessage'])->name('assistant.send-message');
+    Route::get('/assistant/history', [AIAssistantController::class, 'getHistory'])->name('assistant.history');
+});
 
 //gestion _collecte
 Route::resource('campagnes', CampagneController::class);
