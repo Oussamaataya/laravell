@@ -1,0 +1,301 @@
+/* ================================================
+   Styles personnalisés pour les cartes Leaflet
+   ================================================ */
+
+/* Container principal de la carte */
+.leaflet-container {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Amélioration des popups */
+.leaflet-popup-content-wrapper {
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    padding: 0;
+}
+
+.leaflet-popup-content {
+    margin: 15px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.leaflet-popup-tip {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Style pour les boutons dans les popups */
+.leaflet-popup-content .btn {
+    font-size: 13px;
+    padding: 6px 12px;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+/* Contrôles de zoom personnalisés */
+.leaflet-control-zoom {
+    border: none !important;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.leaflet-control-zoom a {
+    width: 36px;
+    height: 36px;
+    line-height: 36px;
+    font-size: 20px;
+    border: none !important;
+    background-color: #ffffff;
+    color: #333;
+    transition: all 0.3s ease;
+}
+
+.leaflet-control-zoom a:hover {
+    background-color: #f0f0f0;
+    color: #000;
+}
+
+/* Attribution */
+.leaflet-control-attribution {
+    font-size: 11px;
+    background: rgba(255, 255, 255, 0.9) !important;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+/* Container de carte avec bordure et ombre */
+.map-container {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 1px solid #e0e0e0;
+}
+
+/* Animation de chargement pour la carte */
+.map-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.map-loading::after {
+    content: '';
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Style pour le marqueur personnalisé */
+.custom-marker-icon {
+    background-color: #e74c3c;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Amélioration du texte d'aide sous la carte */
+.map-help-text {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #6c757d;
+    font-size: 13px;
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 6px;
+    border-left: 4px solid #3498db;
+}
+
+.map-help-text i {
+    color: #3498db;
+    font-size: 16px;
+}
+
+/* Style pour le badge de localisation */
+.location-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+/* Responsive - tablettes */
+@media (max-width: 768px) {
+    .leaflet-container {
+        min-height: 300px;
+    }
+    
+    .leaflet-popup-content {
+        margin: 12px;
+        font-size: 13px;
+    }
+    
+    .map-help-text {
+        font-size: 12px;
+    }
+}
+
+/* Responsive - mobiles */
+@media (max-width: 576px) {
+    .leaflet-container {
+        min-height: 250px;
+    }
+    
+    .leaflet-control-zoom a {
+        width: 32px;
+        height: 32px;
+        line-height: 32px;
+        font-size: 18px;
+    }
+    
+    .leaflet-popup-content {
+        margin: 10px;
+        font-size: 12px;
+    }
+}
+
+/* Style pour les tooltips sur les marqueurs */
+.leaflet-tooltip {
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    font-size: 12px;
+    padding: 6px 10px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+    border: none;
+}
+
+/* Animation du marqueur au survol */
+.leaflet-marker-icon:hover {
+    transform: scale(1.1);
+    transition: transform 0.2s ease;
+    cursor: pointer;
+}
+
+/* Style pour le bouton de localisation actuelle (si ajouté) */
+.leaflet-control-locate {
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.leaflet-control-locate a {
+    background-color: white;
+    color: #3498db;
+    border: none;
+    width: 36px;
+    height: 36px;
+    line-height: 36px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.leaflet-control-locate a:hover {
+    background-color: #3498db;
+    color: white;
+}
+
+/* Amélioration du contraste en mode sombre */
+@media (prefers-color-scheme: dark) {
+    .leaflet-container {
+        filter: brightness(0.9) contrast(1.1);
+    }
+    
+    .leaflet-popup-content-wrapper {
+        background-color: #2c3e50;
+        color: #ecf0f1;
+    }
+    
+    .leaflet-control-zoom a {
+        background-color: #34495e;
+        color: #ecf0f1;
+    }
+    
+    .leaflet-control-zoom a:hover {
+        background-color: #2c3e50;
+    }
+}
+
+/* Style pour les champs de formulaire liés à la carte */
+.map-form-field {
+    transition: all 0.3s ease;
+}
+
+.map-form-field:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+}
+
+/* Badge indiquant que l'adresse est auto-remplie */
+.auto-filled-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    background-color: #27ae60;
+    color: white;
+    font-size: 11px;
+    border-radius: 10px;
+    margin-left: 8px;
+}
+
+/* Container pour les boutons d'action de la carte */
+.map-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.map-actions .btn {
+    flex: 1;
+    min-width: 150px;
+}
+
+/* Style pour l'indicateur de chargement de géocodage */
+.geocoding-loader {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #3498db;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-left: 8px;
+    vertical-align: middle;
+}
+
+/* Carte en mode plein écran */
+.leaflet-fullscreen-on .leaflet-container {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 9999 !important;
+    border-radius: 0 !important;
+}

@@ -34,6 +34,12 @@
   <!-- AOS CSS -->
   <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
 
+  <!-- Leaflet CSS (pour les cartes d'événements) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+        crossorigin=""/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@3.11.1/dist/geosearch.css" />
+
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -108,105 +114,8 @@
     @yield('content')
   </main>
 
-  <!-- Footer -->
-  <footer id="footer" class="bg-black">
-    <div class="container">
-      <div class="row d-flex flex-wrap justify-content-between py-5">
-        <div class="col-md-3 col-sm-6">
-          <div class="footer-menu footer-menu-001">
-            <div class="footer-intro mb-4">
-              <a href="{{ route('home') }}">
-                <img src="{{ Vite::asset('resources/assets/images/main-logo.png') }}" alt="logo" class="mb-2">
-              </a>
-              <p>EcoEvent - Organisez des événements écoresponsables qui respectent notre planète.</p>
-            </div>
-            <div class="social-links">
-              <ul class="list-unstyled d-flex gap-3">
-                <li>
-                  <a href="#" class="text-secondary">
-                    <svg width="24" height="24" viewBox="0 0 24 24">
-                      <use xlink:href="#facebook"></use>
-                    </svg>
-                  </a>
-                </li>
-                <li>
-                  <a href="#" class="text-secondary">
-                    <svg width="24" height="24" viewBox="0 0 24 24">
-                      <use xlink:href="#twitter"></use>
-                    </svg>
-                  </a>
-                </li>
-                <li>
-                  <a href="#" class="text-secondary">
-                    <svg width="24" height="24" viewBox="0 0 24 24">
-                      <use xlink:href="#instagram"></use>
-                    </svg>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-          <div class="footer-menu footer-menu-002">
-            <h5 class="widget-title text-uppercase mb-4">Liens Rapides</h5>
-            <ul class="menu-list list-unstyled text-uppercase border-animation-left fs-6">
-              <li class="menu-item">
-                <a href="{{ route('home') }}" class="item-anchor">Accueil</a>
-              </li>
-              <li class="menu-item">
-                <a href="{{ route('events.index') }}" class="item-anchor">Événements</a>
-              </li>
-              <li class="menu-item">
-                <a href="#" class="item-anchor">À propos</a>
-              </li>
-              <li class="menu-item">
-                <a href="#" class="item-anchor">Contact</a>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-          <div class="footer-menu footer-menu-003">
-            <h5 class="widget-title text-uppercase mb-4">Services</h5>
-            <ul class="menu-list list-unstyled text-uppercase border-animation-left fs-6">
-              <li class="menu-item">
-                <a href="#" class="item-anchor">Événements Verts</a>
-              </li>
-              <li class="menu-item">
-                <a href="#" class="item-anchor">Conseil Écologique</a>
-              </li>
-              <li class="menu-item">
-                <a href="#" class="item-anchor">Formation</a>
-              </li>
-              <li class="menu-item">
-                <a href="#" class="item-anchor">Certification</a>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div class="col-md-3 col-sm-6">
-          <div class="footer-menu footer-menu-004 border-animation-left">
-            <h5 class="widget-title text-uppercase mb-4">Contact</h5>
-            <p>Des questions ? <a href="mailto:contact@ecoevent.com" class="item-anchor">contact@ecoevent.com</a></p>
-            <p>Besoin d'aide ? <a href="tel:+212 6 12 34 56 78" class="item-anchor">+212 6 12 34 56 78</a></p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="border-top py-4">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-6 text-center text-md-start">
-            <p>© 2024 EcoEvent. Tous droits réservés.</p>
-          </div>
-          <div class="col-md-6 text-center text-md-end">
-            <p>Développé avec ❤️ pour la planète</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </footer>
+  <!-- Modern Footer -->
+  <x-modern-footer />
 
   <!-- Bootstrap JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
@@ -226,6 +135,77 @@
       duration: 1200,
       once: true
     });
+  </script>
+
+  <!-- Leaflet JS (pour les cartes d'événements) -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+          crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet-geosearch@3.11.1/dist/geosearch.umd.js"></script>
+  
+  <!-- Fonctions de carte -->
+  <script>
+    // Fix for default marker icon issue
+    if (typeof L !== 'undefined') {
+      delete L.Icon.Default.prototype._getIconUrl;
+      L.Icon.Default.mergeOptions({
+          iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+          iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+          shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      });
+
+      /**
+       * Initialise une carte en lecture seule pour afficher une localisation
+       */
+      window.initMapViewer = function(options = {}) {
+          const {
+              containerId = 'event-map',
+              lat = 36.8065,
+              lng = 10.1815,
+              zoom = 15,
+              popupText = 'Localisation de l\'événement'
+          } = options;
+
+          console.log('🗺️ Initialisation de la carte viewer:', options);
+
+          // Créer la carte
+          const map = L.map(containerId).setView([lat, lng], zoom);
+
+          // Ajouter le layer OpenStreetMap
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+              maxZoom: 19,
+          }).addTo(map);
+
+          // Ajouter un marker
+          const marker = L.marker([lat, lng]).addTo(map);
+          
+          if (popupText) {
+              marker.bindPopup(popupText).openPopup();
+          }
+
+          console.log('✅ Carte viewer initialisée avec succès');
+
+          return {
+              map,
+              marker,
+              updatePosition(newLat, newLng, newPopupText = null) {
+                  marker.setLatLng([newLat, newLng]);
+                  map.setView([newLat, newLng], zoom);
+                  if (newPopupText) {
+                      marker.bindPopup(newPopupText).openPopup();
+                  }
+              },
+              destroy() {
+                  map.remove();
+              }
+          };
+      };
+      
+      console.log('✅ Fonction initMapViewer chargée pour le frontend');
+    } else {
+      console.error('❌ Leaflet (L) n\'est pas chargé !');
+    }
   </script>
 
   @stack('scripts')

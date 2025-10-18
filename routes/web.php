@@ -17,7 +17,8 @@ use App\Http\Controllers\LikeController;
 use App\Http\Controllers\TypeRecyclageController;
 use App\Http\Controllers\RecyclageController;
 use App\Http\Controllers\AIAssistantController;
-
+use App\Http\Controllers\Admin\TicketController;
+use App\Http\Controllers\ChatController;
 // AI Assistant Routes
 Route::middleware(['auth'])->group(function () {
     Route::get('/assistant', [AIAssistantController::class, 'index'])->name('assistant.chat');
@@ -43,7 +44,38 @@ Route::get('/events/{event}', [EventController::class, 'show'])->name('events.sh
 Route::get('/collectes', [App\Http\Controllers\CampagneController::class, 'publicIndex'])->name('collectes.index');
 Route::get('/collectes/{campagne}', [App\Http\Controllers\CampagneController::class, 'publicShow'])->name('collectes.show');
 Route::get('/collectes/{campagne}/donate', [App\Http\Controllers\CollecteController::class, 'donateForm'])->name('collectes.donate.form')->middleware('auth');
-Route::post('/collectes/{campagne}/donate', [App\Http\Controllers\CollecteController::class, 'donate'])->name('collectes.donate')->middleware('auth');
+Route::post('/collectes/{campagne}/donate', [App\Http\Controllers\StripePaymentController::class, 'createCheckoutSession'])->name('collectes.donate')->middleware('auth');
+
+// Route de test Stripe
+Route::get('/test-stripe-payment', function () {
+    return view('test-stripe-payment');
+})->name('test.stripe.payment')->middleware('auth');
+
+// Routes de test Email
+Route::get('/test-email', function () {
+    return view('test-email');
+})->name('test.email')->middleware('auth');
+
+Route::post('/test-send-email', function (Illuminate\Http\Request $request) {
+    try {
+        $email = $request->input('email');
+        
+        \Illuminate\Support\Facades\Mail::raw('Ceci est un email de test envoyé depuis votre application Laravel. Si vous recevez cet email, la configuration SMTP fonctionne correctement ! 🎉', function($message) use ($email) {
+            $message->to($email)
+                    ->subject('Test Email - ' . config('app.name'));
+        });
+        
+        return redirect()->back()->with('success', 'Email de test envoyé à ' . $email . ' ! Vérifiez votre boîte de réception (et les spams).');
+    } catch (\Exception $e) {
+        \Log::error('Erreur envoi email de test: ' . $e->getMessage());
+        return redirect()->back()->with('error', 'Erreur lors de l\'envoi : ' . $e->getMessage());
+    }
+})->name('test.send.email')->middleware('auth');
+
+// Routes Stripe
+Route::get('/stripe/success/{collecte}', [App\Http\Controllers\StripePaymentController::class, 'success'])->name('stripe.success')->middleware('auth');
+Route::get('/stripe/cancel/{collecte}', [App\Http\Controllers\StripePaymentController::class, 'cancel'])->name('stripe.cancel')->middleware('auth');
+Route::post('/stripe/webhook', [App\Http\Controllers\StripePaymentController::class, 'webhook'])->name('stripe.webhook');
 
 // Routes publiques pour reclamations
 Route::get('/reclamations', [ReclamationController::class, 'publicIndex'])->name('reclamations.index');
@@ -51,6 +83,11 @@ Route::get('/reclamations/{reclamation}', [ReclamationController::class, 'public
 Route::post('/reclamations/{reclamation}/avis', [AvisController::class, 'publicStore'])->name('reclamations.avis.store')->middleware('auth');
 Route::middleware('auth')->group(function () {
     Route::post('/reclamations', [ReclamationController::class, 'publicStore'])->name('reclamations.store');
+
+
+Route::post('/chat', [ChatController::class, 'handleRequest']);
+
+Route::view('/chatbot', 'reclamations.chat'); // Pour afficher la page Blade
 });
 
 // Routes pour les publications
@@ -122,6 +159,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/events/{event}/register', [EventRegistrationController::class, 'register'])->name('events.register');
     Route::delete('/events/{event}/unregister', [EventRegistrationController::class, 'unregister'])->name('events.unregister');
     Route::get('/my-registrations', [EventRegistrationController::class, 'myRegistrations'])->name('events.my-registrations');
+    Route::get('/my-tickets/{registration}', [EventRegistrationController::class, 'showTicket'])->name('events.ticket');
 });
 
 // Routes d'administration (admin seulement)
@@ -171,6 +209,14 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
 
     // Gestion des types de recyclage (admin seulement)
     Route::resource('type-recyclages', TypeRecyclageController::class);
+
+    // Gestion des billets électroniques (QR Codes)
+    Route::get('tickets/scan/{event?}', [TicketController::class, 'scanInterface'])->name('tickets.scan');
+    Route::post('tickets/validate', [TicketController::class, 'validateTicket'])->name('tickets.validate');
+    Route::get('tickets/event/{event}', [TicketController::class, 'eventTickets'])->name('tickets.event');
+    Route::post('tickets/{registration}/regenerate', [TicketController::class, 'regenerateQRCode'])->name('tickets.regenerate');
+    Route::get('tickets/{registration}/download', [TicketController::class, 'downloadQRCode'])->name('tickets.download');
+    Route::post('tickets/{registration}/cancel', [TicketController::class, 'cancelTicket'])->name('tickets.cancel');
 
 });
 

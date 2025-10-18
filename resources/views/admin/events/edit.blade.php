@@ -186,7 +186,8 @@
                                         <div class="mb-3">
                                             <label for="address" class="form-label">Adresse complète</label>
                                             <textarea class="form-control @error('address') is-invalid @enderror" 
-                                                      id="address" name="address" rows="2">{{ old('address', $event->address) }}</textarea>
+                                                      id="address" name="address" rows="2" readonly>{{ old('address', $event->address) }}</textarea>
+                                            <div class="form-text">Cliquez sur la carte pour sélectionner la localisation</div>
                                             @error('address')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -198,7 +199,7 @@
                                                     <label for="city" class="form-label">Ville *</label>
                                                     <input type="text" class="form-control @error('city') is-invalid @enderror" 
                                                            id="city" name="city" value="{{ old('city', $event->city) }}" 
-                                                           {{ !old('is_online', $event->is_online) ? 'required' : '' }}>
+                                                           {{ !old('is_online', $event->is_online) ? 'required' : '' }} readonly>
                                                     @error('city')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -213,6 +214,20 @@
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Coordonnées GPS (cachés) -->
+                                        <input type="hidden" id="latitude" name="latitude" value="{{ old('latitude', $event->latitude ?? '36.8065') }}">
+                                        <input type="hidden" id="longitude" name="longitude" value="{{ old('longitude', $event->longitude ?? '10.1815') }}">
+
+                                        <!-- Carte interactive -->
+                                        <div class="mb-3">
+                                            <label class="form-label">Sélectionner la localisation sur la carte</label>
+                                            <div id="map" style="height: 400px; width: 100%; border-radius: 8px; border: 1px solid #dee2e6;"></div>
+                                            <div class="form-text mt-2">
+                                                <i class="mdi mdi-information-outline"></i> 
+                                                Cliquez sur la carte ou déplacez le marqueur pour définir la localisation exacte de l'événement.
                                             </div>
                                         </div>
                                     </div>
@@ -407,6 +422,8 @@
 </div>
 @push('scripts')
 <script>
+    let mapSelector = null;
+
     // Gestion des champs en ligne/physique
     document.getElementById('is_online').addEventListener('change', function() {
         const onlineFields = document.getElementById('online_fields');
@@ -417,10 +434,15 @@
             onlineFields.style.display = 'block';
             physicalFields.style.display = 'none';
             cityField.removeAttribute('required');
+            if (mapSelector) {
+                mapSelector.destroy();
+                mapSelector = null;
+            }
         } else {
             onlineFields.style.display = 'none';
             physicalFields.style.display = 'block';
             cityField.setAttribute('required', 'required');
+            initMap();
         }
     });
 
@@ -446,10 +468,31 @@
         endDate.setAttribute('min', this.value);
     });
 
+    // Initialiser la carte
+    function initMap() {
+        if (mapSelector) return; // Déjà initialisée
+
+        const lat = parseFloat(document.getElementById('latitude').value) || 36.8065;
+        const lng = parseFloat(document.getElementById('longitude').value) || 10.1815;
+
+        mapSelector = window.initMapSelector({
+            containerId: 'map',
+            defaultLat: lat,
+            defaultLng: lng,
+            zoom: 13,
+            latInputId: 'latitude',
+            lngInputId: 'longitude',
+            addressInputId: 'address',
+            cityInputId: 'city'
+        });
+    }
+
     // Initialiser l'état des champs au chargement
     document.addEventListener('DOMContentLoaded', function() {
-        // Pas besoin de déclencher les événements car les champs sont déjà dans le bon état
-        // grâce aux valeurs inline style définies dans le HTML
+        // Initialiser la carte si le mode n'est pas en ligne
+        if (!document.getElementById('is_online').checked) {
+            initMap();
+        }
     });
 </script>
 @endpush

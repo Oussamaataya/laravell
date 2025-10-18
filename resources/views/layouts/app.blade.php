@@ -176,7 +176,21 @@
     @yield('content')
   </main>
 
-  <!-- JS Local via Vite -->
+  <!-- Modern Footer -->
+  <x-modern-footer />
+
+  <!-- JS Local via Vite (avec gestion d'erreur) -->
+  <script>
+    // Gestion d'erreur pour les scripts manquants
+    window.onerror = function(msg, url, lineNo, columnNo, error) {
+      if (msg.includes('hcSticky') || msg.includes('AOS')) {
+        console.log('Script optionnel non chargé:', msg);
+        return true; // Empêche l'affichage de l'erreur
+      }
+      return false;
+    };
+  </script>
+
   @vite([
       'resources/assets/js/jquery.min.js',
       'resources/assets/js/plugins.js',
@@ -187,10 +201,12 @@
   <!-- AOS JS -->
   <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
   <script>
-    AOS.init({
-      duration: 1200,
-      once: true
-    });
+    if (typeof AOS !== 'undefined') {
+      AOS.init({
+        duration: 1200,
+        once: true
+      });
+    }
   </script>
 
   <!-- JS externes -->

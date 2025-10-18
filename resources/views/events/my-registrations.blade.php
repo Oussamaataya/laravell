@@ -113,7 +113,7 @@
                                 </div>
                                 <div class="d-flex align-items-center mb-2">
                                     <i class="fas fa-calendar-plus text-success me-2"></i>
-                                    <small>Inscrit le {{ $registration->registration_date->format('d/m/Y') }}</small>
+                                    <small>Inscrit le {{ ($registration->registered_at ?? $registration->created_at)->format('d/m/Y') }}</small>
                                 </div>
                                 <div class="d-flex align-items-center">
                                     <i class="fas fa-euro-sign text-primary me-2"></i>
@@ -131,6 +131,10 @@
                             <div class="d-flex gap-2">
                                 <a href="{{ route('events.show', $event) }}" class="btn btn-outline-primary flex-fill">
                                     <i class="fas fa-eye me-1"></i>Voir
+                                </a>
+                                
+                                <a href="{{ route('events.ticket', $registration->id) }}" class="btn btn-primary flex-fill">
+                                    <i class="fas fa-ticket-alt me-1"></i>Billet
                                 </a>
                                 
                                 @if(!$isPast && !$isToday)

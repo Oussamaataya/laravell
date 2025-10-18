@@ -335,37 +335,60 @@
        UNIFORMISATION DES CARTES D'ÉVÉNEMENTS ADMIN
        ======================================== */
     
-    /* Forcer la grille à avoir des lignes de même hauteur */
+    /* Forcer la grille à avoir des colonnes égales */
     .row.row-cols-1.row-cols-md-2.row-cols-xl-3 {
-        display: grid !important;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        display: flex !important;
+        flex-wrap: wrap !important;
         gap: 1.5rem;
+        margin: 0 -0.75rem;
     }
     
-    @media (min-width: 768px) {
-        .row.row-cols-1.row-cols-md-2.row-cols-xl-3 {
-            grid-template-columns: repeat(2, 1fr);
+    .row.row-cols-1.row-cols-md-2.row-cols-xl-3 > .col {
+        flex: 1 1 calc(33.333% - 1.5rem);
+        max-width: calc(33.333% - 1.5rem);
+        padding: 0;
+    }
+    
+    @media (max-width: 1200px) {
+        .row.row-cols-1.row-cols-md-2.row-cols-xl-3 > .col {
+            flex: 1 1 calc(50% - 1.5rem);
+            max-width: calc(50% - 1.5rem);
         }
     }
     
-    @media (min-width: 1200px) {
-        .row.row-cols-1.row-cols-md-2.row-cols-xl-3 {
-            grid-template-columns: repeat(3, 1fr);
+    @media (max-width: 768px) {
+        .row.row-cols-1.row-cols-md-2.row-cols-xl-3 > .col {
+            flex: 1 1 100%;
+            max-width: 100%;
         }
     }
     
+    /* Structure de la carte - HAUTEUR TOTALE FIXE */
     .event-card {
+        height: 100% !important;
+        min-height: 680px !important;
+        max-height: 680px !important;
+        display: flex !important;
+        flex-direction: column !important;
         transition: all 0.3s ease;
         border-radius: 10px;
         overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        height: 100% !important;
+        border: 1px solid #e0e0e0;
     }
     
-    /* Image de taille fixe */
+    /* IMAGE - HAUTEUR FIXE STRICTE */
+    .event-card .position-relative {
+        height: 200px !important;
+        min-height: 200px !important;
+        max-height: 200px !important;
+        flex-shrink: 0;
+        overflow: hidden;
+    }
+    
     .event-card .card-img-top {
         height: 200px !important;
+        min-height: 200px !important;
+        max-height: 200px !important;
         width: 100%;
         object-fit: cover;
         object-position: center;
@@ -375,64 +398,110 @@
     .event-card .card-img-top.bg-light {
         height: 200px !important;
         min-height: 200px !important;
+        max-height: 200px !important;
     }
     
-    /* Corps de la carte avec flex */
+    /* CORPS DE LA CARTE - Hauteur flexible mais contrôlée */
     .event-card .card-body {
-        display: flex;
-        flex-direction: column;
-        flex: 1;
-        padding: 1.5rem;
+        flex: 1 1 auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        padding: 1.25rem !important;
+        overflow: hidden;
+        max-height: calc(680px - 200px - 70px) !important; /* Total - Image - Footer */
     }
     
-    /* Titre avec hauteur minimale fixe */
+    /* Badge catégorie */
+    .event-card .card-body > .mb-2:first-child {
+        height: 28px !important;
+        margin-bottom: 0.5rem !important;
+        flex-shrink: 0;
+    }
+    
+    /* TITRE - HAUTEUR FIXE */
     .event-card .card-title {
-        min-height: 50px;
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        line-height: 1.3;
-        margin-bottom: 0.75rem;
+        height: 50px !important;
+        min-height: 50px !important;
+        max-height: 50px !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 2 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+        line-height: 1.25 !important;
+        margin-bottom: 0.75rem !important;
+        font-size: 1.1rem !important;
+        flex-shrink: 0;
     }
     
-    /* Description avec hauteur fixe */
+    /* DESCRIPTION - HAUTEUR FIXE */
     .event-card .card-text {
-        min-height: 60px !important;
-        max-height: 60px !important;
-        overflow: hidden;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        margin-bottom: 1rem;
-        font-size: 0.875rem;
+        height: 63px !important;
+        min-height: 63px !important;
+        max-height: 63px !important;
+        overflow: hidden !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 3 !important;
+        -webkit-box-orient: vertical !important;
+        margin-bottom: 1rem !important;
+        font-size: 0.875rem !important;
+        line-height: 1.5 !important;
+        flex-shrink: 0;
     }
     
-    /* Zone des détails avec hauteur fixe */
-    .event-card .mb-3:has(.d-flex.align-items-center) {
-        min-height: 120px;
+    /* INFORMATIONS CLÉS - HAUTEUR FIXE */
+    .event-card .card-body > .mb-3:nth-child(4) {
+        height: 110px !important;
+        min-height: 110px !important;
+        max-height: 110px !important;
+        flex-shrink: 0;
+        margin-bottom: 0.75rem !important;
     }
     
-    /* Section score écologique avec hauteur fixe */
-    .event-card .card-body > div:last-of-type {
-        min-height: 60px !important;
+    /* SCORE ÉCOLOGIQUE - HAUTEUR FIXE */
+    .event-card .card-body > .mb-3:last-child {
+        height: 55px !important;
+        min-height: 55px !important;
+        max-height: 55px !important;
+        flex-shrink: 0;
+        margin-bottom: 0 !important;
     }
     
-    /* Footer toujours en bas */
+    /* FOOTER - HAUTEUR FIXE */
     .event-card .card-footer {
-        margin-top: auto;
-        padding: 1rem 1.5rem;
-        background-color: #f8f9fa;
-        border-top: 1px solid #dee2e6;
+        height: 70px !important;
+        min-height: 70px !important;
+        max-height: 70px !important;
+        margin-top: auto !important;
+        padding: 1rem 1.25rem !important;
+        background-color: #f8f9fa !important;
+        border-top: 1px solid #dee2e6 !important;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
     }
     
+    /* Effets hover */
     .event-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 15px 35px rgba(0,0,0,0.1) !important;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15) !important;
+        border-color: #6c7ae0;
+    }
+    
+    .event-card .card-title a {
+        color: #2c2c2c;
+        text-decoration: none;
+        transition: color 0.3s ease;
     }
     
     .event-card .card-title a:hover {
         color: #6c7ae0 !important;
+    }
+    
+    /* Badges et icônes */
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.375rem 0.75rem;
+        font-weight: 500;
     }
     
     .icon-lg {
@@ -440,73 +509,78 @@
         height: 50px;
     }
     
+    /* Gradients pour les stats */
     .bg-gradient-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
     }
     
     .bg-gradient-success {
-        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
     }
     
     .bg-gradient-warning {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%) !important;
     }
     
     .bg-gradient-info {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
     }
     
-    /* Fix pour les cartes d'événements */
-    .event-card .card-body {
-        padding: 1.5rem;
-    }
-    
-    .event-card .card-footer {
-        padding: 1rem 1.5rem;
-        background-color: #f8f9fa;
-        border-top: 1px solid #dee2e6;
-    }
-    
-    /* Fix pour les badges */
-    .badge {
-        font-size: 0.75rem;
-        padding: 0.375rem 0.75rem;
-    }
-    
-    /* Fix pour les boutons */
+    /* Boutons */
     .btn-sm {
         padding: 0.375rem 0.75rem;
         font-size: 0.875rem;
+        white-space: nowrap;
     }
     
-    /* Fix pour les dropdowns */
+    /* Dropdown */
     .dropdown-menu {
         border-radius: 0.375rem;
         box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        border: 1px solid #e0e0e0;
     }
     
-    /* Fix pour la grille responsive */
-    @media (max-width: 768px) {
-        .event-card {
-            margin-bottom: 1rem;
-        }
+    .dropdown-item {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
     }
     
-    /* Fix pour les progress bars */
+    .dropdown-item:hover {
+        background-color: #f8f9fa;
+    }
+    
+    /* Progress bars */
+    .progress {
+        height: 6px !important;
+        border-radius: 3px;
+        background-color: #e9ecef;
+    }
+    
     .progress-bar-success {
-        background-color: #28a745;
+        background-color: #28a745 !important;
     }
     
     .progress-bar-primary {
-        background-color: #007bff;
+        background-color: #007bff !important;
     }
     
     .progress-bar-warning {
-        background-color: #ffc107;
+        background-color: #ffc107 !important;
     }
     
     .progress-bar-secondary {
-        background-color: #6c757d;
+        background-color: #6c757d !important;
+    }
+    
+    /* Icônes dans les informations */
+    .event-card .d-flex.align-items-center .mdi {
+        font-size: 1rem;
+        width: 20px;
+    }
+    
+    /* Fix pour les badges en overlay */
+    .position-absolute .badge {
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
 </style>
 @endpush

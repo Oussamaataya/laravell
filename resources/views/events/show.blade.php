@@ -197,6 +197,65 @@
                 </div>
             @endif
 
+            <!-- Carte de Localisation -->
+            @if(!$event->is_online && ($event->latitude && $event->longitude))
+                <div class="location-map card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title mb-4">
+                            <i class="fas fa-map-marked-alt text-primary me-2"></i>Localisation
+                        </h3>
+                        
+                        <div class="mb-3">
+                            <p class="mb-2">
+                                <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                                <strong>{{ $event->location ?: $event->city }}</strong>
+                            </p>
+                            @if($event->address)
+                                <p class="text-muted small mb-0">
+                                    {{ $event->address }}
+                                    @if($event->city), {{ $event->city }}@endif
+                                    @if($event->postal_code) ({{ $event->postal_code }})@endif
+                                </p>
+                            @endif
+                        </div>
+
+                        <!-- Carte interactive Leaflet -->
+                        <div id="event-map" style="height: 400px; border-radius: 10px; overflow: hidden;" class="shadow-sm"></div>
+                        
+                        <div class="mt-3 d-flex gap-2">
+                            <a href="https://www.google.com/maps/dir/?api=1&destination={{ $event->latitude }},{{ $event->longitude }}" 
+                               target="_blank" 
+                               class="btn btn-outline-primary btn-sm flex-fill">
+                                <i class="fas fa-directions me-1"></i>Itinéraire
+                            </a>
+                            <a href="https://www.google.com/maps/search/?api=1&query={{ $event->latitude }},{{ $event->longitude }}" 
+                               target="_blank" 
+                               class="btn btn-outline-secondary btn-sm flex-fill">
+                                <i class="fas fa-external-link-alt me-1"></i>Ouvrir dans Maps
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            @elseif(!$event->is_online)
+                <div class="location-info card border-0 shadow-sm mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title mb-3">
+                            <i class="fas fa-map-marker-alt text-primary me-2"></i>Localisation
+                        </h3>
+                        <p class="mb-2">
+                            <strong>{{ $event->location ?: $event->city }}</strong>
+                        </p>
+                        @if($event->address)
+                            <p class="text-muted small">
+                                {{ $event->address }}
+                                @if($event->city), {{ $event->city }}@endif
+                                @if($event->postal_code) ({{ $event->postal_code }})@endif
+                            </p>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
             <!-- Informations pratiques supplémentaires -->
             @if($event->requirements || $event->what_to_bring || $event->accessibility_info)
                 <div class="additional-info card border-0 shadow-sm mb-4">
@@ -499,4 +558,69 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 </script>
+
+@if(!$event->is_online && $event->latitude && $event->longitude)
+@push('scripts')
+<script>
+    // Initialiser la carte Leaflet
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('🗺️ Tentative d\'initialisation de la carte event-map...');
+        
+        // Attendre que Leaflet et initMapViewer soient disponibles
+        function waitForLeaflet(callback, attempts = 0) {
+            if (typeof L !== 'undefined' && typeof window.initMapViewer === 'function') {
+                console.log('✅ Leaflet et initMapViewer disponibles');
+                callback();
+            } else if (attempts < 50) { // Max 5 secondes d'attente
+                console.log('⏳ En attente de Leaflet... (tentative ' + (attempts + 1) + ')');
+                setTimeout(() => waitForLeaflet(callback, attempts + 1), 100);
+            } else {
+                console.error('❌ Timeout: Leaflet n\'a pas pu être chargé');
+            }
+        }
+        
+        waitForLeaflet(() => {
+            try {
+                const mapViewer = window.initMapViewer({
+                    containerId: 'event-map',
+                    lat: {{ $event->latitude }},
+                    lng: {{ $event->longitude }},
+                    zoom: 15,
+                    popupText: `
+                        <div style="min-width: 200px;">
+                            <h6 class="mb-2"><i class="fas fa-calendar-alt text-primary me-1"></i> <strong>{{ $event->title }}</strong></h6>
+                            <p class="mb-1 small">
+                                <i class="fas fa-map-marker-alt text-danger me-1"></i> 
+                                {{ $event->location ?: $event->city }}
+                            </p>
+                            @if($event->address)
+                            <p class="mb-1 small text-muted">{{ addslashes($event->address) }}</p>
+                            @endif
+                            <p class="mb-1 small">
+                                <i class="fas fa-clock text-primary me-1"></i> 
+                                {{ $event->start_date->format('d/m/Y') }} à {{ $event->start_time }}
+                            </p>
+                            <a href="https://www.google.com/maps/dir/?api=1&destination={{ $event->latitude }},{{ $event->longitude }}" 
+                               target="_blank" 
+                               class="btn btn-sm btn-primary mt-2 w-100">
+                                <i class="fas fa-directions me-1"></i> Itinéraire
+                            </a>
+                        </div>
+                    `
+                });
+                
+                console.log('✅ Carte initialisée avec succès !');
+                
+                // Ajuster la carte après un court délai (pour les animations)
+                setTimeout(() => {
+                    mapViewer.map.invalidateSize();
+                }, 300);
+            } catch (error) {
+                console.error('❌ Erreur lors de l\'initialisation de la carte:', error);
+            }
+        });
+    });
+</script>
+@endpush
+@endif
 @endsection

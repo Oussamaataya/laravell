@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('publications', function (Blueprint $table) {
-            $table->boolean('is_approved')->default(true);
+        Schema::table('event_registrations', function (Blueprint $table) {
+            $table->enum('payment_status', ['not_required', 'pending', 'completed', 'failed'])
+                ->default('pending')
+                ->after('status');
         });
     }
 
@@ -21,8 +23,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('publications', function (Blueprint $table) {
-            $table->dropColumn('is_approved');
+        Schema::table('event_registrations', function (Blueprint $table) {
+            $table->dropColumn('payment_status');
         });
     }
 };

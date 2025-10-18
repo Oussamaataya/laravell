@@ -145,6 +145,13 @@
                                         {{ $event->postal_code }}
                                     @endif
                                 </span>
+
+                                <!-- Carte de localisation -->
+                                @if($event->latitude && $event->longitude)
+                                    <div class="mt-3">
+                                        <div id="map-viewer" style="height: 250px; width: 100%; border-radius: 8px; border: 1px solid #dee2e6;"></div>
+                                    </div>
+                                @endif
                             @endif
                         </div>
 
@@ -275,4 +282,21 @@
         </div>
     </div>
 </div>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialiser la carte de visualisation si les coordonnées sont disponibles
+        @if(!$event->is_online && $event->latitude && $event->longitude)
+            const mapViewer = window.initMapViewer({
+                containerId: 'map-viewer',
+                lat: {{ $event->latitude }},
+                lng: {{ $event->longitude }},
+                zoom: 15,
+                popupText: '<strong>{{ $event->location ?? $event->title }}</strong><br>{{ $event->address }}'
+            });
+        @endif
+    });
+</script>
+@endpush
 @endsection

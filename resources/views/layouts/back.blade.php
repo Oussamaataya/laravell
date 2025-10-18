@@ -15,6 +15,12 @@
   @vite(['resources/assets-back/js/select.dataTables.min.css'])
   @vite(['resources/assets-back/css/vertical-layout-light/style.css'])
   
+  <!-- Leaflet CSS (pour les cartes) -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" 
+        crossorigin=""/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-geosearch@3.11.1/dist/geosearch.css" />
+  
   <link rel="shortcut icon" href="images/favicon.png" />
   
   <style>
@@ -875,6 +881,170 @@
   @vite(['resources/assets-back/js/dashboard.js'])
   @vite(['resources/assets-back/js/Chart.roundedBarCharts.js'])
   
+  <!-- Leaflet JS (pour les cartes) - Chargé après les vendors pour éviter les conflits -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" 
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" 
+          crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet-geosearch@3.11.1/dist/geosearch.umd.js"></script>
+  
+  <!-- Notre module de carte personnalisé -->
+  <script>
+    // Fix for default marker icon issue
+    delete L.Icon.Default.prototype._getIconUrl;
+    L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+    });
+
+    /**
+     * Initialise une carte interactive pour sélectionner une localisation
+     */
+    window.initMapSelector = function(options = {}) {
+        const {
+            containerId = 'map',
+            defaultLat = 36.8065,
+            defaultLng = 10.1815,
+            zoom = 13,
+            latInputId = 'latitude',
+            lngInputId = 'longitude',
+            addressInputId = 'address',
+            cityInputId = 'city'
+        } = options;
+
+        console.log('🗺️ Initialisation de la carte avec:', options);
+
+        // Créer la carte
+        const map = L.map(containerId).setView([defaultLat, defaultLng], zoom);
+
+        // Ajouter le layer OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19,
+        }).addTo(map);
+
+        // Créer un marker draggable
+        const marker = L.marker([defaultLat, defaultLng], { 
+            draggable: true 
+        }).addTo(map);
+
+        // Fonction pour mettre à jour les champs du formulaire
+        function updateFormFields(lat, lng, address = '', city = '') {
+            const latInput = document.getElementById(latInputId);
+            const lngInput = document.getElementById(lngInputId);
+            const addressInput = document.getElementById(addressInputId);
+            const cityInput = document.getElementById(cityInputId);
+
+            if (latInput) latInput.value = lat.toFixed(6);
+            if (lngInput) lngInput.value = lng.toFixed(6);
+            if (addressInput && address) addressInput.value = address;
+            if (cityInput && city) cityInput.value = city;
+        }
+
+        // Fonction pour obtenir l'adresse à partir des coordonnées
+        async function reverseGeocode(lat, lng) {
+            try {
+                const response = await fetch(
+                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&addressdetails=1`
+                );
+                const data = await response.json();
+                
+                if (data && data.address) {
+                    const address = data.display_name;
+                    const city = data.address.city || 
+                                data.address.town || 
+                                data.address.village || 
+                                data.address.county || 
+                                '';
+                    
+                    updateFormFields(lat, lng, address, city);
+                    marker.bindPopup(`<b>${address}</b>`).openPopup();
+                }
+            } catch (error) {
+                console.error('Erreur lors du reverse geocoding:', error);
+                updateFormFields(lat, lng);
+            }
+        }
+
+        // Gérer le clic sur la carte
+        map.on('click', function(e) {
+            const { lat, lng } = e.latlng;
+            marker.setLatLng([lat, lng]);
+            reverseGeocode(lat, lng);
+        });
+
+        // Gérer le drag du marker
+        marker.on('dragend', function(e) {
+            const { lat, lng } = e.target.getLatLng();
+            reverseGeocode(lat, lng);
+        });
+
+        // Initialiser avec les coordonnées par défaut
+        reverseGeocode(defaultLat, defaultLng);
+
+        console.log('✅ Carte initialisée avec succès');
+
+        return {
+            map,
+            marker,
+            setPosition(lat, lng) {
+                marker.setLatLng([lat, lng]);
+                map.setView([lat, lng], zoom);
+                reverseGeocode(lat, lng);
+            },
+            destroy() {
+                map.remove();
+            }
+        };
+    };
+
+    /**
+     * Initialise une carte en lecture seule pour afficher une localisation
+     */
+    window.initMapViewer = function(options = {}) {
+        const {
+            containerId = 'map-viewer',
+            lat = 36.8065,
+            lng = 10.1815,
+            zoom = 15,
+            popupText = 'Localisation de l\'événement'
+        } = options;
+
+        // Créer la carte
+        const map = L.map(containerId).setView([lat, lng], zoom);
+
+        // Ajouter le layer OpenStreetMap
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+            maxZoom: 19,
+        }).addTo(map);
+
+        // Ajouter un marker
+        const marker = L.marker([lat, lng]).addTo(map);
+        
+        if (popupText) {
+            marker.bindPopup(popupText).openPopup();
+        }
+
+        return {
+            map,
+            marker,
+            updatePosition(newLat, newLng, newPopupText = null) {
+                marker.setLatLng([newLat, newLng]);
+                map.setView([newLat, newLng], zoom);
+                if (newPopupText) {
+                    marker.bindPopup(newPopupText).openPopup();
+                }
+            },
+            destroy() {
+                map.remove();
+            }
+        };
+    };
+
+    console.log('✅ Fonctions de carte chargées et prêtes');
+  </script>
+  
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       const currentRoute = '{{ request()->route()->getName() }}';
@@ -958,6 +1128,9 @@
       }, 3000);
     });
   </script>
+  
+  <!-- Scripts personnalisés des pages -->
+  @stack('scripts')
   
 </body>
 </html>

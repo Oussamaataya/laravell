@@ -292,13 +292,6 @@
         @endif
     </div>
 </section>
-
-<!-- Footer -->
-<footer class="bg-dark text-white py-4 mt-5">
-    <div class="container text-center">
-        <p class="mb-0">&copy; 2024 ECO EVENT. Tous droits réservés.</p>
-    </div>
-</footer>
 @endsection
 
 @push('scripts')

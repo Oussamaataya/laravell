@@ -206,24 +206,25 @@
 
         <!-- Liste des événements -->
         <section class="events-list">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h2 class="section-title">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+                <h2 class="section-title mb-0">
                     <i class="fas fa-calendar-alt me-2"></i>Tous les Événements
                     <small class="text-muted">({{ $events->total() }} résultats)</small>
                 </h2>
                 
                 <div class="view-toggle">
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-outline-primary active" id="grid-view">
+                        <button type="button" class="btn btn-outline-primary active" id="grid-view" title="Vue grille">
                             <i class="fas fa-th"></i>
                         </button>
-                        <button type="button" class="btn btn-outline-primary" id="list-view">
+                        <button type="button" class="btn btn-outline-primary" id="list-view" title="Vue liste">
                             <i class="fas fa-list"></i>
                         </button>
                     </div>
                 </div>
             </div>
             
+            <!-- Vue Grille/Liste -->
             <div class="events-container" id="events-grid">
                 @forelse($events as $event)
                     <div class="col-lg-4 col-md-6 mb-4 event-item">

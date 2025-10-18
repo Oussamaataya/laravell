@@ -167,7 +167,8 @@
                                         <div class="mb-3">
                                             <label for="address" class="form-label">Adresse complète</label>
                                             <textarea class="form-control @error('address') is-invalid @enderror" 
-                                                      id="address" name="address" rows="2">{{ old('address') }}</textarea>
+                                                      id="address" name="address" rows="2" readonly>{{ old('address') }}</textarea>
+                                            <div class="form-text">Cliquez sur la carte pour sélectionner la localisation</div>
                                             @error('address')
                                                 <div class="invalid-feedback">{{ $message }}</div>
                                             @enderror
@@ -178,7 +179,7 @@
                                                 <div class="mb-3">
                                                     <label for="city" class="form-label">Ville *</label>
                                                     <input type="text" class="form-control @error('city') is-invalid @enderror" 
-                                                           id="city" name="city" value="{{ old('city') }}" required>
+                                                           id="city" name="city" value="{{ old('city') }}" required readonly>
                                                     @error('city')
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
@@ -193,6 +194,20 @@
                                                         <div class="invalid-feedback">{{ $message }}</div>
                                                     @enderror
                                                 </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Coordonnées GPS (cachés) -->
+                                        <input type="hidden" id="latitude" name="latitude" value="{{ old('latitude', '36.8065') }}">
+                                        <input type="hidden" id="longitude" name="longitude" value="{{ old('longitude', '10.1815') }}">
+
+                                        <!-- Carte interactive -->
+                                        <div class="mb-3">
+                                            <label class="form-label">Sélectionner la localisation sur la carte</label>
+                                            <div id="map" style="height: 400px; width: 100%; border-radius: 8px; border: 1px solid #dee2e6;"></div>
+                                            <div class="form-text mt-2">
+                                                <i class="mdi mdi-information-outline"></i> 
+                                                Cliquez sur la carte ou déplacez le marqueur pour définir la localisation exacte de l'événement.
                                             </div>
                                         </div>
                                     </div>
@@ -382,6 +397,8 @@
 
 @push('scripts')
 <script>
+    let mapSelector = null;
+
     // Gestion des champs en ligne/physique
     document.getElementById('is_online').addEventListener('change', function() {
         const onlineFields = document.getElementById('online_fields');
@@ -390,9 +407,14 @@
         if (this.checked) {
             onlineFields.style.display = 'block';
             physicalFields.style.display = 'none';
+            if (mapSelector) {
+                mapSelector.destroy();
+                mapSelector = null;
+            }
         } else {
             onlineFields.style.display = 'none';
             physicalFields.style.display = 'block';
+            initMap();
         }
     });
 
@@ -418,10 +440,81 @@
         endDate.setAttribute('min', this.value);
     });
 
+    // Initialiser la carte
+    function initMap() {
+        console.log('🗺️ Tentative d\'initialisation de la carte...');
+        
+        if (mapSelector) {
+            console.log('⚠️ Carte déjà initialisée');
+            return; // Déjà initialisée
+        }
+
+        // Vérifier que le conteneur existe
+        const mapContainer = document.getElementById('map');
+        if (!mapContainer) {
+            console.error('❌ Conteneur #map non trouvé !');
+            return;
+        }
+        console.log('✅ Conteneur #map trouvé');
+
+        // Vérifier que la fonction existe
+        if (typeof window.initMapSelector !== 'function') {
+            console.error('❌ Fonction window.initMapSelector non disponible !');
+            console.log('window.initMapSelector:', window.initMapSelector);
+            return;
+        }
+        console.log('✅ Fonction initMapSelector disponible');
+
+        const lat = parseFloat(document.getElementById('latitude').value) || 36.8065;
+        const lng = parseFloat(document.getElementById('longitude').value) || 10.1815;
+        console.log('📍 Coordonnées:', lat, lng);
+
+        try {
+            mapSelector = window.initMapSelector({
+                containerId: 'map',
+                defaultLat: lat,
+                defaultLng: lng,
+                zoom: 13,
+                latInputId: 'latitude',
+                lngInputId: 'longitude',
+                addressInputId: 'address',
+                cityInputId: 'city'
+            });
+            console.log('✅ Carte initialisée avec succès !', mapSelector);
+        } catch (error) {
+            console.error('❌ Erreur lors de l\'initialisation de la carte:', error);
+        }
+    }
+
     // Initialiser l'état des champs
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('🚀 DOM chargé, initialisation des événements...');
+        
+        // Attendre que Leaflet soit complètement chargé
+        function waitForLeaflet(callback) {
+            if (typeof L !== 'undefined' && typeof window.initMapSelector === 'function') {
+                console.log('✅ Leaflet détecté, exécution du callback');
+                callback();
+            } else {
+                console.log('⏳ En attente de Leaflet...');
+                setTimeout(() => waitForLeaflet(callback), 100);
+            }
+        }
+        
         document.getElementById('is_online').dispatchEvent(new Event('change'));
         document.getElementById('is_free').dispatchEvent(new Event('change'));
+        
+        // Initialiser la carte si le mode n'est pas en ligne
+        if (!document.getElementById('is_online').checked) {
+            console.log('📍 Mode présentiel détecté, initialisation de la carte...');
+            
+            waitForLeaflet(() => {
+                console.log('🗺️ Lancement de initMap()');
+                initMap();
+            });
+        } else {
+            console.log('💻 Mode en ligne détecté, carte non initialisée');
+        }
     });
 </script>
 @endpush

@@ -66,7 +66,12 @@
                       @else
                         <li><a class="dropdown-item" href="{{ route('home') }}">Mon Espace</a></li>
                       @endif
-                      <li><a class="dropdown-item" href="{{ route('profile.edit') }}">Mon Profil</a></li>
+                      <li><a class="dropdown-item" href="{{ route('profile.edit') }}">
+                        <i class="fas fa-user me-1"></i>Mon Profil
+                      </a></li>
+                      <li><a class="dropdown-item" href="{{ route('events.my-registrations') }}">
+                        <i class="fas fa-ticket-alt me-1"></i>Mes Inscriptions
+                      </a></li>
                       <li><hr class="dropdown-divider"></li>
                       <li>
                         <form method="POST" action="{{ route('logout') }}" class="d-inline">

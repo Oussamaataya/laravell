@@ -1,10 +1,38 @@
 @extends('layouts.app')
 
-@section('title', 'Toutes les Campagnes - Gestion Collecte')
+@section('title', 'Faire un Don - ' . $campagne->nom)
 
 @push('styles')
-
-
+<style>
+    .sticky-top {
+        position: sticky;
+        top: 20px;
+        z-index: 100;
+    }
+    
+    .suggested-amount {
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .suggested-amount:hover {
+        transform: scale(1.05);
+    }
+    
+    .progress-bar {
+        transition: width 1s ease-in-out;
+    }
+    
+    .btn-success {
+        transition: all 0.3s ease;
+    }
+    
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(40, 167, 69, 0.4) !important;
+    }
+</style>
+@endpush
 
 @section('content')
 <!-- Success Message -->
@@ -242,30 +270,18 @@
         </div>
     </div>
 </section>
-
-<!-- CTA Footer -->
-<footer class="bg-dark text-white py-5 mt-5">
-    <div class="container text-center">
-        <h4 class="mb-3">Prêt à Faire la Différence ?</h4>
-        <p class="lead mb-4">Chaque don compte pour un avenir meilleur.</p>
-        <a href="#cagnotte" class="btn btn-success btn-lg px-5 rounded-pill">
-            <i class="fas fa-donate me-2"></i>Donner Maintenant
-        </a>
-        <p class="mt-4 mb-0 small">&copy; 2024 Gestion Collecte. Tous droits réservés. | <a href="{{ route('collectes.show', $campagne) }}" class="text-white-50">Retour à la Campagne</a></p>
-    </div>
-</footer>
+@endsection
 
 @push('scripts')
 <script>
-    AOS.init({ duration: 1000, once: true });
-
     // Suggested amounts
     document.addEventListener('DOMContentLoaded', function() {
         const suggestedButtons = document.querySelectorAll('.suggested-amount');
         const amountInput = document.getElementById('montant');
 
         suggestedButtons.forEach(button => {
-            button.addEventListener('click', function() {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
                 const amount = this.dataset.amount;
                 amountInput.value = amount;
                 suggestedButtons.forEach(btn => {
@@ -277,42 +293,26 @@
             });
         });
 
-        // Submit button shimmer
-        const submitBtn = document.querySelector('button[type="submit"]');
-        const shimmer = submitBtn.querySelector('span.position-absolute');
-        submitBtn.addEventListener('mouseenter', function() {
-            shimmer.style.opacity = '1';
-            shimmer.style.left = '-100%';
-            setTimeout(() => {
-                shimmer.style.left = '100%';
-            }, 10);
-        });
-        submitBtn.addEventListener('mouseleave', function() {
-            shimmer.style.opacity = '0';
-            shimmer.style.left = '-100%';
-        });
-
-        // Smooth scroll to cagnotte
-        document.querySelectorAll('a[href="#cagnotte"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.querySelector('#cagnotte').scrollIntoView({
-                    behavior: 'smooth'
-                });
-            });
-        });
-
         // Form validation
         const form = document.getElementById('donationForm');
         form.addEventListener('submit', function(e) {
-            const montant = document.getElementById('montant').value;
+            const montant = parseFloat(document.getElementById('montant').value);
             if (!montant || montant < 1) {
                 e.preventDefault();
                 alert('Veuillez entrer un montant valide (minimum 1 €).');
+                return false;
             }
         });
+
+        // Auto-hide success message
+        setTimeout(function() {
+            const alert = document.querySelector('.alert-success');
+            if (alert) {
+                alert.style.transition = 'opacity 0.5s';
+                alert.style.opacity = '0';
+                setTimeout(() => alert.remove(), 500);
+            }
+        }, 5000);
     });
 </script>
 @endpush
-
-@endsection

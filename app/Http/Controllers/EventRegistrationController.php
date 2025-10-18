@@ -4,12 +4,20 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\EventRegistration;
+use App\Services\TicketService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class EventRegistrationController extends Controller
 {
+    protected $ticketService;
+
+    public function __construct(TicketService $ticketService)
+    {
+        $this->ticketService = $ticketService;
+    }
+
     /**
      * S'inscrire à un événement
      */
@@ -58,21 +66,50 @@ class EventRegistrationController extends Controller
             $registration = EventRegistration::create([
                 'event_id' => $event->id,
                 'user_id' => $user->id,
-                'registration_date' => now(),
+                'registered_at' => now(),
                 'status' => 'confirmed',
                 'payment_status' => $event->is_free ? 'not_required' : 'pending',
             ]);
+
+            // Recharger l'inscription avec les relations
+            $registration->load(['event', 'user']);
+
+            // Générer automatiquement le billet électronique avec QR Code
+            try {
+                $this->ticketService->generateTicket($registration);
+                // Recharger pour avoir le QR Code
+                $registration->refresh();
+            } catch (\Exception $ticketException) {
+                // Log l'erreur mais ne bloque pas l'inscription
+                \Log::error('Erreur génération ticket: ' . $ticketException->getMessage());
+                \Log::error($ticketException->getTraceAsString());
+            }
+
+            // Envoyer l'email de confirmation
+            try {
+                \Mail::to($user->email)->send(new \App\Mail\EventRegistrationMail($registration));
+                \Log::info('Email de confirmation envoyé', [
+                    'user_id' => $user->id,
+                    'event_id' => $event->id,
+                    'registration_id' => $registration->id,
+                ]);
+            } catch (\Exception $mailException) {
+                // Log l'erreur mais ne bloque pas l'inscription
+                \Log::error('Erreur envoi email: ' . $mailException->getMessage());
+            }
 
             // Incrémenter le nombre de participants
             $event->increment('current_participants');
 
             DB::commit();
 
-            return back()->with('success', 'Inscription réussie ! Vous êtes maintenant inscrit à cet événement.');
+            return back()->with('success', 'Inscription réussie ! Un email de confirmation vous a été envoyé avec votre billet électronique.');
 
         } catch (\Exception $e) {
             DB::rollback();
-            return back()->with('error', 'Une erreur est survenue lors de l\'inscription. Veuillez réessayer.');
+            \Log::error('Erreur inscription: ' . $e->getMessage());
+            \Log::error($e->getTraceAsString());
+            return back()->with('error', 'Une erreur est survenue lors de l\'inscription: ' . $e->getMessage());
         }
     }
 
@@ -136,5 +173,18 @@ class EventRegistrationController extends Controller
                                          ->get();
 
         return view('events.my-registrations', compact('registrations'));
+    }
+
+    /**
+     * Afficher un billet spécifique
+     */
+    public function showTicket($registrationId)
+    {
+        $registration = EventRegistration::with('event', 'user')
+            ->where('id', $registrationId)
+            ->where('user_id', Auth::id())
+            ->firstOrFail();
+
+        return view('events.ticket', compact('registration'));
     }
 }

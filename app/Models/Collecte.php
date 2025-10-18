@@ -7,7 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 class Collecte extends Model
 {
     protected $fillable = [
-        'montant', 'methode_paiement', 'statut', 'campagne_id', 'utilisateur_id'
+        'montant', 
+        'methode_paiement', 
+        'statut', 
+        'campagne_id', 
+        'utilisateur_id',
+        'stripe_session_id',
+        'stripe_payment_intent',
+        'message',
     ];
 
     public function campagne()

@@ -78,6 +78,20 @@
         .hero-section { min-height: 30vh; }
         .star-label { font-size: 1.5rem; }
     }
+    .card-negative {
+    background-color: #f8d7da !important; /* rouge clair */
+    color: #842029 !important; /* texte foncé */
+}
+
+.card-positive {
+    background-color: #d1e7dd !important; /* vert clair */
+    color: #0f5132 !important; /* texte foncé */
+}
+
+.card-neutre {
+    background-color: #e2e3e5 !important; /* gris clair */
+    color: #41464b !important; /* texte foncé */
+}
 </style>
 @endpush
 
@@ -89,6 +103,14 @@
             <div class="col-lg-8">
                 <h1 class="display-5 fw-bold mb-3" data-aos="fade-up">{{ $reclamation->sujet }}</h1>
                 <p class="lead mb-0" data-aos="fade-up" data-aos-delay="200">{{ $reclamation->description }}</p>
+                  @php
+                        $sentimentColor = 'secondary'; // neutre par défaut
+                        if(strtolower($reclamation->sentiment) === 'positif') $sentimentColor = 'success';
+                        if(strtolower($reclamation->sentiment) === 'negatif') $sentimentColor = 'danger';
+                    @endphp
+                    <span class="badge bg-{{ $sentimentColor }} px-3 py-2 fw-bold">
+                        {{ ucfirst($reclamation->sentiment) }}
+                    </span>
             </div>
             <div class="col-lg-4 text-center">
                 <div class="status-badge position-relative">
@@ -124,13 +146,27 @@
 <section class="py-5">
     <div class="container">
         <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="reclamation-card p-4 mb-5" data-aos="fade-up">
+            <div class="col-lg-10"> <!-- Sentiment -->
+                          @php
+    $cardClass = match(strtolower($reclamation->sentiment ?? 'neutre')) {
+        'positif' => 'card-positive',
+        'negatif' => 'card-negative',
+        'neutre', null => 'card-neutre',
+        default => 'card-neutre',
+    };
+@endphp
+                <div class="reclamation-card p-4 mb-5 {{ $cardClass }}" data-aos="fade-up">
                     <div class="row">
                         <div class="col-md-8">
                             <h3 class="fw-bold text-dark mb-3">{{ $reclamation->sujet }}</h3>
-                            <p class="text-muted mb-4">{{ $reclamation->description }}</p>
-                            <div class="d-flex align-items-center">
+                             <h4>{{ $prioriteText }}</h4>
+                            <p class="text-muted mb-2">{{ $reclamation->description }}</p>
+                            
+                           
+
+                           
+
+                            <div class="d-flex align-items-center mt-3">
                                 <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; font-size: 1.1rem; font-weight: bold;">
                                     {{ substr($reclamation->user->name ?? 'N/A', 0, 1) }}
                                 </div>
@@ -168,6 +204,7 @@
         </div>
     </div>
 </section>
+
 
 <!-- Réponses Section -->
 @if($reclamation->responses->count() > 0)
@@ -287,13 +324,6 @@
         </div>
     </div>
 </section>
-
-<!-- Footer -->
-<footer class="bg-dark text-white py-4 mt-5">
-    <div class="container text-center">
-        <p class="mb-0">&copy; 2025 ECO EVENT. Tous droits réservés.</p>
-    </div>
-</footer>
 @endsection
 
 @push('scripts')

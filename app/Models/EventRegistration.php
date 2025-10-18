@@ -13,14 +13,21 @@ class EventRegistration extends Model
         'event_id',
         'user_id',
         'status',
+        'payment_status',
         'notes',
         'registered_at',
         'cancelled_at',
+        'ticket_code',
+        'qr_code_path',
+        'checked_in_at',
+        'checked_in_by',
+        'ticket_status',
     ];
 
     protected $casts = [
         'registered_at' => 'datetime',
         'cancelled_at' => 'datetime',
+        'checked_in_at' => 'datetime',
     ];
 
     // Relations
@@ -32,6 +39,11 @@ class EventRegistration extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function checkedInBy()
+    {
+        return $this->belongsTo(User::class, 'checked_in_by');
     }
 
     // Scopes

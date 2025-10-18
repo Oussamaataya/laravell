@@ -7,17 +7,40 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
-
+ use Illuminate\Support\Facades\Http; // pour faire les requêtes HTTP
 class ReclamationController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(): View
-    {
-        $reclamations = Reclamation::with('user')->paginate(10);
-        return view('admin.reclamations.index', compact('reclamations'));
+public function index(): View
+{
+    // Trier par sentiment : négatif (urgente) → positif → neutre
+    $reclamations = Reclamation::with('user')
+        ->orderByRaw("
+            CASE 
+                WHEN sentiment = 'négatif' THEN 1
+                WHEN sentiment = 'positif' THEN 2
+                WHEN sentiment = 'neutre' OR sentiment IS NULL THEN 3
+                ELSE 4
+            END
+        ")
+        ->paginate(10);
+
+    // Ajouter la priorité
+    foreach ($reclamations as $rec) {
+        $rec->priorite = match ($rec->sentiment) {
+            'négatif' => 'urgente',
+            'positif', 'neutre', null => 'normale',
+            default => 'normale',
+        };
     }
+
+    return view('admin.reclamations.index', compact('reclamations'));
+}
+
+
+
 
     /**
      * Show the form for creating a new resource.
@@ -58,12 +81,31 @@ class ReclamationController extends Controller
     /**
      * Display the specified public resource with avis.
      */
-    public function publicShow(string $id): View
-    {
-        $reclamation = Reclamation::with(['user', 'responses.user', 'avis.user'])
-            ->findOrFail($id);
-        return view('reclamations.show', compact('reclamation'));
-    }
+public function publicShow(string $id): View
+{
+    $reclamation = Reclamation::with(['user', 'responses.user', 'avis.user'])
+        ->findOrFail($id);
+
+    // Déterminer la classe de couleur et le texte de priorité
+    $sentiment = strtolower($reclamation->sentiment ?? 'neutre');
+
+    $cardClass = match($sentiment) {
+        'positif' => 'card-positive',
+        'negatif' => 'card-negative',
+        'neutre', null => 'card-neutre',
+        default => 'card-neutre',
+    };
+
+    $prioriteText = match($sentiment) {
+        'positif' => 'Autre',
+        'negatif' => 'Urgente',
+        'neutre', null => 'Normale',
+        default => 'Normale',
+    };
+
+    return view('reclamations.show', compact('reclamation', 'cardClass', 'prioriteText'));
+}
+
 
     /**
      * Show the form for editing the specified resource.
@@ -141,19 +183,41 @@ class ReclamationController extends Controller
     /**
      * Store a newly created public reclamation in storage.
      */
-    public function publicStore(Request $request): RedirectResponse
-    {
-        $validated = $request->validate([
-            'sujet' => 'required|string|max:255',
-            'description' => 'required|string',
+   
+
+public function publicStore(Request $request): RedirectResponse
+{
+    $validated = $request->validate([
+        'sujet' => 'required|string|max:255',
+        'description' => 'required|string',
+    ]);
+
+    $validated['user_id'] = auth()->id();
+    $validated['statut'] = 'en_attente';
+
+    // --- Appel API Flask pour le sentiment ---
+    try {
+        $response = Http::post('http://127.0.0.1:5000/sentiment', [
+            'text' => $validated['description']
         ]);
 
-        $validated['user_id'] = auth()->id();
-        $validated['statut'] = 'en_attente';
+        if ($response->ok()) {
+            $sentiment = $response->json()['sentiment'];
+            $validated['sentiment'] = $sentiment;
 
-        Reclamation::create($validated);
-
-        return redirect()->route('reclamations.index')
-            ->with('success', 'Votre réclamation a été créée avec succès et est en attente de traitement.');
+            // Mapper le sentiment en priorité (optionnel)
+            $validated['priority'] = $sentiment === 'negatif' ? 'urgente' : 'normale';
+        }
+    } catch (\Exception $e) {
+        // Si l'API ne répond pas, on peut mettre "inconnu"
+        $validated['sentiment'] = 'inconnu';
+        $validated['priority'] = 'normale';
     }
+
+    Reclamation::create($validated);
+
+    return redirect()->route('reclamations.index')
+        ->with('success', 'Votre réclamation a été créée avec succès et est en attente de traitement.');
+}
+
 }

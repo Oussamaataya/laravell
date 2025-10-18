@@ -16,6 +16,7 @@ class Reclamation extends Model
         'description',
         'statut',
         'user_id',
+        'sentiment'
     ];
 
     /**

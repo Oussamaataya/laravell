@@ -11,9 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('commentaires', function (Blueprint $table) {
-            // Rename English column to French
-            $table->renameColumn('content', 'contenu');
+        Schema::table('event_registrations', function (Blueprint $table) {
+            //
         });
     }
 
@@ -22,9 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('commentaires', function (Blueprint $table) {
-            // Rename French column back to English
-            $table->renameColumn('contenu', 'content');
+        Schema::table('event_registrations', function (Blueprint $table) {
+            //
         });
     }
 };
