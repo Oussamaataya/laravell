@@ -17,6 +17,9 @@
   @vite(['resources/assets-back/js/select.dataTables.min.css'])
   @vite(['resources/assets-back/css/vertical-layout-light/style.css'])
   
+  <!-- Enhanced Admin Styles -->
+  <link rel="stylesheet" href="{{ asset('css/admin-enhanced.css') }}">
+  
   <link rel="shortcut icon" href="images/favicon.png" />
   @stack('styles')
   <style>
@@ -192,6 +195,29 @@
           </li>
 
           <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('admin.chat-rooms.*') ? 'active' : '' }}" href="{{ route('admin.chat-rooms.index') }}">
+              <i class="icon-bubbles menu-icon"></i>
+              <span class="menu-title">Chat Rooms</span>
+            </a>
+            <div class="collapse {{ request()->routeIs('admin.chat-rooms.*') ? 'show' : '' }}" id="chat-management">
+              <ul class="nav flex-column sub-menu">
+                <li class="nav-item"> 
+                  <a class="nav-link {{ request()->routeIs('admin.chat-rooms.index') ? 'active' : '' }}" href="{{ route('admin.chat-rooms.index') }}">
+                    <i class="fas fa-list me-2"></i>
+                    Liste des rooms
+                  </a>
+                </li>
+                <li class="nav-item"> 
+                  <a class="nav-link {{ request()->routeIs('admin.chat-rooms.create') ? 'active' : '' }}" href="{{ route('admin.chat-rooms.create') }}">
+                    <i class="fas fa-plus me-2"></i>
+                    Créer une room
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </li>
+
+          <li class="nav-item">
             <a class="nav-link" href="{{ route('home') }}" target="_blank">
               <i class="icon-globe menu-icon"></i>
               <span class="menu-title">Voir le site</span>
@@ -210,17 +236,7 @@
       <!-- Main panel -->
       @yield('content')
       
-      <!-- Footer -->
-      <footer class="footer">
-        <div class="d-sm-flex justify-content-center justify-content-sm-between">
-          <span class="text-muted text-center text-sm-left d-block d-sm-inline-block">
-            Copyright © {{ date('Y') }} EcoEvent. Tous droits réservés.
-          </span>
-          <span class="float-none float-sm-right d-block mt-1 mt-sm-0 text-center">
-            Fait avec <i class="ti-heart text-danger ml-1"></i> pour l'environnement
-          </span>
-        </div>
-      </footer>
+      
     </div>
   </div>
 
@@ -258,6 +274,8 @@
           setTarget('{{ route('admin.publications.index') }}');
         } else if(currentRoute && currentRoute.startsWith('admin.commentaires')) {
           setTarget('{{ route('admin.commentaires.index') }}');
+        } else if(currentRoute && currentRoute.startsWith('admin.chat-rooms')) {
+          setTarget('{{ route('admin.chat-rooms.index') }}');
         } else if(currentRoute && currentRoute.startsWith('admin.users')) {
           setTarget('{{ route('admin.users.index') }}');
         } else if(currentRoute && currentRoute.startsWith('admin.events')) {

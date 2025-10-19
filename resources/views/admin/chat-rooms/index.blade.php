@@ -8,19 +8,19 @@
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h1 class="h3 mb-0 text-gray-800">
-                        <i class="fas fa-newspaper text-primary me-2"></i>
-                        Gestion des Publications
+                        <i class="fas fa-comments text-primary me-2"></i>
+                        Gestion des Chat Rooms
                     </h1>
-                    <p class="text-muted mb-0">Modérez et gérez toutes les publications de la plateforme</p>
+                    <p class="text-muted mb-0">Gérez tous les groupes de chat de la plateforme</p>
                 </div>
                 <div class="d-flex gap-2">
                     <span class="badge bg-info fs-6 px-3 py-2">
-                        <i class="fas fa-newspaper me-1"></i>
-                        {{ $publications->total() }} publications
+                        <i class="fas fa-comments me-1"></i>
+                        {{ $chatRooms->total() }} rooms
                     </span>
-                    <a href="{{ route('admin.publications.create') }}" class="btn btn-primary">
+                    <a href="{{ route('admin.chat-rooms.create') }}" class="btn btn-primary">
                         <i class="fas fa-plus me-1"></i>
-                        Nouvelle Publication
+                        Nouvelle Room
                     </a>
                 </div>
             </div>
@@ -33,14 +33,14 @@
             <div class="card stats-card fade-in h-100">
                 <div class="card-body text-center">
                     <div class="stats-icon text-primary">
-                        <i class="fas fa-newspaper"></i>
+                        <i class="fas fa-comments"></i>
                     </div>
-                    <div class="stats-number text-primary">{{ \App\Models\Publication::count() }}</div>
-                    <div class="stats-label">Total des publications</div>
+                    <div class="stats-number text-primary">{{ \App\Models\ChatRoom::count() }}</div>
+                    <div class="stats-label">Total des rooms</div>
                     <div class="mt-2">
                         <small class="text-success">
                             <i class="fas fa-arrow-up me-1"></i>
-                            +{{ \App\Models\Publication::whereDate('created_at', today())->count() }} aujourd'hui
+                            +{{ \App\Models\ChatRoom::whereDate('created_at', today())->count() }} aujourd'hui
                         </small>
                     </div>
                 </div>
@@ -52,17 +52,17 @@
                     <div class="stats-icon text-success">
                         <i class="fas fa-check-circle"></i>
                     </div>
-                    <div class="stats-number text-success">{{ \App\Models\Publication::where('is_approved', true)->count() }}</div>
-                    <div class="stats-label">Publications approuvées</div>
+                    <div class="stats-number text-success">{{ \App\Models\ChatRoom::where('is_active', true)->count() }}</div>
+                    <div class="stats-label">Rooms actives</div>
                     <div class="mt-2">
                         @php
-                            $approvedPercentage = \App\Models\Publication::count() > 0 
-                                ? round((\App\Models\Publication::where('is_approved', true)->count() / \App\Models\Publication::count()) * 100, 1)
+                            $activePercentage = \App\Models\ChatRoom::count() > 0 
+                                ? round((\App\Models\ChatRoom::where('is_active', true)->count() / \App\Models\ChatRoom::count()) * 100, 1)
                                 : 0;
                         @endphp
                         <small class="text-success">
                             <i class="fas fa-percentage me-1"></i>
-                            {{ $approvedPercentage }}% du total
+                            {{ $activePercentage }}% du total
                         </small>
                     </div>
                 </div>
@@ -71,15 +71,20 @@
         <div class="col-lg-3 col-md-6">
             <div class="card stats-card fade-in h-100" style="animation-delay: 0.2s;">
                 <div class="card-body text-center">
-                    <div class="stats-icon text-warning">
-                        <i class="fas fa-clock"></i>
+                    <div class="stats-icon text-info">
+                        <i class="fas fa-users"></i>
                     </div>
-                    <div class="stats-number text-warning">{{ \App\Models\Publication::where('is_approved', false)->count() }}</div>
-                    <div class="stats-label">En attente d'approbation</div>
+                    <div class="stats-number text-info">{{ \App\Models\ChatParticipant::count() }}</div>
+                    <div class="stats-label">Total participants</div>
                     <div class="mt-2">
-                        <small class="text-warning">
-                            <i class="fas fa-exclamation-triangle me-1"></i>
-                            Nécessite une action
+                        @php
+                            $avgParticipants = \App\Models\ChatRoom::count() > 0 
+                                ? round(\App\Models\ChatParticipant::count() / \App\Models\ChatRoom::count(), 1)
+                                : 0;
+                        @endphp
+                        <small class="text-info">
+                            <i class="fas fa-chart-line me-1"></i>
+                            {{ $avgParticipants }} par room
                         </small>
                     </div>
                 </div>
@@ -88,20 +93,15 @@
         <div class="col-lg-3 col-md-6">
             <div class="card stats-card fade-in h-100" style="animation-delay: 0.3s;">
                 <div class="card-body text-center">
-                    <div class="stats-icon text-info">
-                        <i class="fas fa-comments"></i>
+                    <div class="stats-icon text-warning">
+                        <i class="fas fa-envelope"></i>
                     </div>
-                    <div class="stats-number text-info">{{ \App\Models\Commentaire::count() }}</div>
-                    <div class="stats-label">Total des commentaires</div>
+                    <div class="stats-number text-warning">{{ \App\Models\ChatMessage::count() }}</div>
+                    <div class="stats-label">Messages envoyés</div>
                     <div class="mt-2">
-                        @php
-                            $avgComments = \App\Models\Publication::count() > 0 
-                                ? round(\App\Models\Commentaire::count() / \App\Models\Publication::count(), 1)
-                                : 0;
-                        @endphp
-                        <small class="text-info">
-                            <i class="fas fa-chart-line me-1"></i>
-                            {{ $avgComments }} par publication
+                        <small class="text-warning">
+                            <i class="fas fa-clock me-1"></i>
+                            {{ \App\Models\ChatMessage::whereDate('created_at', today())->count() }} aujourd'hui
                         </small>
                     </div>
                 </div>
@@ -128,39 +128,54 @@
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-search"></i></span>
                             <input type="text" name="q" value="{{ request('q') }}" class="form-control" 
-                                   placeholder="Titre, contenu, tags...">
+                                   placeholder="Nom ou description...">
                         </div>
                     </div>
                     <div class="col-md-2">
                         <label class="form-label fw-bold">
-                            <i class="fas fa-check-circle me-1"></i>
-                            Statut d'approbation
+                            <i class="fas fa-layer-group me-1"></i>
+                            Type de room
                         </label>
-                        <select name="status" class="form-select">
-                            <option value="">📋 Tous les statuts</option>
-                            <option value="approved" {{ request('status')=='approved'?'selected':'' }}>
-                                ✅ Approuvées
+                        <select name="type" class="form-select">
+                            <option value="">🌐 Tous les types</option>
+                            <option value="public" {{ request('type')=='public'?'selected':'' }}>
+                                🔓 Publiques
                             </option>
-                            <option value="pending" {{ request('status')=='pending'?'selected':'' }}>
-                                ⏳ En attente
+                            <option value="private" {{ request('type')=='private'?'selected':'' }}>
+                                🔒 Privées
                             </option>
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label fw-bold">
-                            <i class="fas fa-user-edit me-1"></i>
-                            Auteur de la publication
+                            <i class="fas fa-toggle-on me-1"></i>
+                            Statut
                         </label>
-                        <select name="author" class="form-select select2-author">
-                            <option value="">👥 Tous les auteurs</option>
-                            @foreach($authors as $id => $name)
-                                <option value="{{ $id }}" {{ request('author') == $id ? 'selected' : '' }}>
+                        <select name="status" class="form-select">
+                            <option value="">📋 Tous les statuts</option>
+                            <option value="active" {{ request('status')=='active'?'selected':'' }}>
+                                ✅ Actives
+                            </option>
+                            <option value="inactive" {{ request('status')=='inactive'?'selected':'' }}>
+                                ❌ Inactives
+                            </option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-bold">
+                            <i class="fas fa-user-crown me-1"></i>
+                            Créateur
+                        </label>
+                        <select name="creator" class="form-select select2-creator">
+                            <option value="">👥 Tous les créateurs</option>
+                            @foreach($creators as $id => $name)
+                                <option value="{{ $id }}" {{ request('creator') == $id ? 'selected' : '' }}>
                                     {{ $name }}
                                 </option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-2">
                         <label class="form-label fw-bold">
                             <i class="fas fa-sort-amount-down me-1"></i>
                             Trier par
@@ -172,14 +187,17 @@
                             <option value="created_at_asc" {{ request('sort')=='created_at_asc'?'selected':'' }}>
                                 📅 Plus anciennes
                             </option>
-                            <option value="title_asc" {{ request('sort')=='title_asc'?'selected':'' }}>
-                                🔤 Titre A-Z
+                            <option value="name_asc" {{ request('sort')=='name_asc'?'selected':'' }}>
+                                🔤 Nom A-Z
                             </option>
-                            <option value="comments_desc" {{ request('sort')=='comments_desc'?'selected':'' }}>
-                                💬 Plus commentées
+                            <option value="participants_desc" {{ request('sort')=='participants_desc'?'selected':'' }}>
+                                👥 Plus de participants
                             </option>
-                            <option value="likes_desc" {{ request('sort')=='likes_desc'?'selected':'' }}>
-                                ❤️ Plus aimées
+                            <option value="messages_desc" {{ request('sort')=='messages_desc'?'selected':'' }}>
+                                💬 Plus de messages
+                            </option>
+                            <option value="activity_desc" {{ request('sort')=='activity_desc'?'selected':'' }}>
+                                ⚡ Plus actives
                             </option>
                         </select>
                     </div>
@@ -199,28 +217,13 @@
                         </label>
                         <input type="date" name="date_to" value="{{ request('date_to') }}" class="form-control">
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label fw-bold">
-                            <i class="fas fa-comments me-1"></i>
-                            Commentaires
-                        </label>
-                        <select name="comments_filter" class="form-select">
-                            <option value="">Tous</option>
-                            <option value="with_comments" {{ request('comments_filter')=='with_comments'?'selected':'' }}>
-                                Avec commentaires
-                            </option>
-                            <option value="no_comments" {{ request('comments_filter')=='no_comments'?'selected':'' }}>
-                                Sans commentaires
-                            </option>
-                        </select>
-                    </div>
-                    <div class="col-md-4 d-flex align-items-end">
+                    <div class="col-md-6 d-flex align-items-end">
                         <div class="btn-group w-100" role="group">
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-search me-1"></i>
                                 Appliquer les filtres
                             </button>
-                            <a href="{{ route('admin.publications.index') }}" class="btn btn-outline-secondary">
+                            <a href="{{ route('admin.chat-rooms.index') }}" class="btn btn-outline-secondary">
                                 <i class="fas fa-undo me-1"></i>
                                 Réinitialiser
                             </a>
@@ -240,21 +243,21 @@
         <div class="card-header bg-white border-0">
             <div class="row align-items-center">
                 <div class="col">
-                    <h5 class="mb-0">Liste des publications</h5>
+                    <h5 class="mb-0">Liste des chat rooms</h5>
                 </div>
                 <div class="col-auto">
                     <div class="d-flex align-items-center gap-2">
                         <div class="form-check">
-                            <input type="checkbox" id="select-all-publications" class="form-check-input">
-                            <label for="select-all-publications" class="form-check-label small">Tout sélectionner</label>
+                            <input type="checkbox" id="select-all-rooms" class="form-check-input">
+                            <label for="select-all-rooms" class="form-check-label small">Tout sélectionner</label>
                         </div>
-                        <select id="bulk-action-publications" class="form-select form-select-sm" style="width: auto;">
+                        <select id="bulk-action-rooms" class="form-select form-select-sm" style="width: auto;">
                             <option value="">Actions en masse</option>
-                            <option value="approve">✅ Approuver sélectionnées</option>
-                            <option value="disapprove">❌ Désapprouver sélectionnées</option>
+                            <option value="activate">✅ Activer sélectionnées</option>
+                            <option value="deactivate">❌ Désactiver sélectionnées</option>
                             <option value="delete">🗑️ Supprimer sélectionnées</option>
                         </select>
-                        <button id="apply-bulk-publications" class="btn btn-sm btn-outline-primary">
+                        <button id="apply-bulk-rooms" class="btn btn-sm btn-outline-primary">
                             <i class="fas fa-play me-1"></i>
                             Appliquer
                         </button>
@@ -269,7 +272,7 @@
                         <tr>
                             <th width="50">
                                 <div class="form-check">
-                                    <input type="checkbox" id="select-all-publications-table" class="form-check-input">
+                                    <input type="checkbox" id="select-all-rooms-table" class="form-check-input">
                                 </div>
                             </th>
                             <th width="80">
@@ -277,24 +280,28 @@
                                 ID
                             </th>
                             <th>
-                                <i class="fas fa-newspaper me-1"></i>
-                                Publication
+                                <i class="fas fa-comments me-1"></i>
+                                Room
                             </th>
                             <th width="150">
-                                <i class="fas fa-user me-1"></i>
-                                Auteur
+                                <i class="fas fa-user-crown me-1"></i>
+                                Créateur
+                            </th>
+                            <th width="100">
+                                <i class="fas fa-layer-group me-1"></i>
+                                Type
+                            </th>
+                            <th width="100">
+                                <i class="fas fa-toggle-on me-1"></i>
+                                Statut
+                            </th>
+                            <th width="120" class="text-center">
+                                <i class="fas fa-chart-bar me-1"></i>
+                                Stats
                             </th>
                             <th width="130">
                                 <i class="fas fa-calendar me-1"></i>
-                                Date
-                            </th>
-                            <th width="120">
-                                <i class="fas fa-check-circle me-1"></i>
-                                Statut
-                            </th>
-                            <th width="100" class="text-center">
-                                <i class="fas fa-chart-bar me-1"></i>
-                                Stats
+                                Créée le
                             </th>
                             <th width="200" class="text-center">
                                 <i class="fas fa-cogs me-1"></i>
@@ -303,52 +310,43 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse($publications as $publication)
+                        @forelse($chatRooms as $room)
                         <tr>
                             <td>
                                 <div class="form-check">
-                                    <input type="checkbox" class="form-check-input pub-checkbox" value="{{ $publication->id }}">
+                                    <input type="checkbox" class="form-check-input room-checkbox" value="{{ $room->id }}">
                                 </div>
                             </td>
                             <td>
-                                <span class="badge bg-light text-dark">#{{ $publication->id }}</span>
+                                <span class="badge bg-light text-dark">#{{ $room->id }}</span>
                             </td>
                             <td>
                                 <div class="d-flex align-items-start">
-                                    @if($publication->image)
-                                        <div class="me-3 flex-shrink-0">
-                                            <img src="{{ asset('storage/' . $publication->image) }}" 
-                                                 alt="Image" 
-                                                 class="rounded" 
-                                                 style="width: 60px; height: 60px; object-fit: cover;">
+                                    <div class="me-3 flex-shrink-0">
+                                        <div class="bg-{{ $room->type === 'public' ? 'primary' : 'warning' }} text-white rounded d-flex align-items-center justify-content-center" 
+                                             style="width: 50px; height: 50px;">
+                                            <i class="fas fa-{{ $room->type === 'public' ? 'globe' : 'lock' }}"></i>
                                         </div>
-                                    @else
-                                        <div class="me-3 flex-shrink-0">
-                                            <div class="bg-light rounded d-flex align-items-center justify-content-center" 
-                                                 style="width: 60px; height: 60px;">
-                                                <i class="fas fa-image text-muted"></i>
-                                            </div>
-                                        </div>
-                                    @endif
+                                    </div>
                                     <div class="flex-grow-1">
                                         <h6 class="mb-1">
-                                            <a href="{{ route('publications.show', $publication->id) }}" 
+                                            <a href="{{ route('admin.chat-rooms.show', $room->id) }}" 
                                                class="text-decoration-none fw-bold" 
-                                               target="_blank" 
-                                               title="{{ $publication->titre }}">
-                                                {{ Str::limit($publication->titre, 50) }}
+                                               title="{{ $room->name }}">
+                                                {{ Str::limit($room->name, 40) }}
                                             </a>
                                         </h6>
-                                        <p class="text-muted small mb-1">
-                                            {{ Str::limit(strip_tags($publication->contenu), 80) }}
-                                        </p>
-                                        @if($publication->tags)
-                                            <div class="mt-1">
-                                                @foreach(explode(',', $publication->tags) as $tag)
-                                                    <span class="badge bg-secondary me-1 small">{{ trim($tag) }}</span>
-                                                @endforeach
-                                            </div>
+                                        @if($room->description)
+                                            <p class="text-muted small mb-1">
+                                                {{ Str::limit($room->description, 60) }}
+                                            </p>
                                         @endif
+                                        <div class="mt-1">
+                                            <span class="badge bg-secondary me-1 small">
+                                                <i class="fas fa-key me-1"></i>
+                                                {{ $room->room_code }}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                             </td>
@@ -357,38 +355,36 @@
                                     <div class="avatar-sm me-2">
                                         <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
                                              style="width: 32px; height: 32px;">
-                                            {{ strtoupper(substr($publication->user->name, 0, 1)) }}
+                                            {{ strtoupper(substr($room->creator->name, 0, 1)) }}
                                         </div>
                                     </div>
                                     <div>
-                                        <div class="fw-medium">{{ $publication->user->name }}</div>
-                                        <small class="text-muted">{{ $publication->user->email }}</small>
+                                        <div class="fw-medium">{{ $room->creator->name }}</div>
+                                        <small class="text-muted">{{ $room->creator->email }}</small>
                                     </div>
                                 </div>
                             </td>
-                            <td>
-                                <div class="text-center">
-                                    <div class="fw-medium">{{ $publication->created_at->format('d/m/Y') }}</div>
-                                    <small class="text-muted">{{ $publication->created_at->format('H:i') }}</small>
-                                    <br>
-                                    <small class="text-info">{{ $publication->created_at->diffForHumans() }}</small>
-                                </div>
+                            <td class="text-center">
+                                <span class="badge bg-{{ $room->type === 'public' ? 'primary' : 'warning' }}">
+                                    <i class="fas fa-{{ $room->type === 'public' ? 'globe' : 'lock' }} me-1"></i>
+                                    {{ ucfirst($room->type) }}
+                                </span>
                             </td>
                             <td class="text-center">
-                                <form action="{{ route('admin.publications.approve', $publication->id) }}" 
+                                <form action="{{ route('admin.chat-rooms.toggle-status', $room->id) }}" 
                                       method="POST" 
                                       style="display: inline;"
-                                      onsubmit="return confirm('Changer le statut de cette publication ?')">
+                                      onsubmit="return confirm('Changer le statut de cette room ?')">
                                     @csrf
                                     @method('PATCH')
                                     <button type="submit" 
-                                            class="btn btn-sm {{ $publication->is_approved ? 'btn-success' : 'btn-warning' }} w-100">
-                                        @if($publication->is_approved)
+                                            class="btn btn-sm {{ $room->is_active ? 'btn-success' : 'btn-secondary' }} w-100">
+                                        @if($room->is_active)
                                             <i class="fas fa-check-circle me-1"></i>
-                                            Approuvée
+                                            Active
                                         @else
-                                            <i class="fas fa-clock me-1"></i>
-                                            En attente
+                                            <i class="fas fa-pause-circle me-1"></i>
+                                            Inactive
                                         @endif
                                     </button>
                                 </form>
@@ -396,36 +392,48 @@
                             <td class="text-center">
                                 <div class="d-flex justify-content-center gap-2">
                                     <div class="text-center">
-                                        <div class="fw-bold text-primary">{{ $publication->commentaires->count() }}</div>
+                                        <div class="fw-bold text-primary">{{ $room->participants_count }}</div>
+                                        <small class="text-muted">
+                                            <i class="fas fa-users"></i>
+                                        </small>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="fw-bold text-info">{{ $room->messages_count }}</div>
                                         <small class="text-muted">
                                             <i class="fas fa-comments"></i>
                                         </small>
                                     </div>
-                                    <div class="text-center">
-                                        <div class="fw-bold text-danger">{{ $publication->likes->count() }}</div>
-                                        <small class="text-muted">
-                                            <i class="fas fa-heart"></i>
-                                        </small>
-                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="text-center">
+                                    <div class="fw-medium">{{ $room->created_at->format('d/m/Y') }}</div>
+                                    <small class="text-muted">{{ $room->created_at->format('H:i') }}</small>
+                                    <br>
+                                    <small class="text-info">{{ $room->created_at->diffForHumans() }}</small>
                                 </div>
                             </td>
                             <td class="text-center">
                                 <div class="btn-group" role="group">
-                                    <a href="{{ route('publications.show', $publication->id) }}" 
+                                    <a href="{{ route('admin.chat-rooms.show', $room->id) }}" 
                                        class="btn btn-sm btn-outline-info" 
-                                       target="_blank" 
-                                       title="Voir la publication">
+                                       title="Voir les détails">
                                         <i class="fas fa-eye me-1"></i> Voir
                                     </a>
-                                    <a href="{{ route('admin.publications.edit', $publication->id) }}?{{ http_build_query(request()->query()) }}" 
+                                    <a href="{{ route('admin.chat-rooms.participants', $room->id) }}" 
                                        class="btn btn-sm btn-outline-primary" 
+                                       title="Gérer les participants">
+                                        <i class="fas fa-users me-1"></i> Participants
+                                    </a>
+                                    <a href="{{ route('admin.chat-rooms.edit', $room->id) }}" 
+                                       class="btn btn-sm btn-outline-warning" 
                                        title="Éditer">
                                         <i class="fas fa-edit me-1"></i> Éditer
                                     </a>
-                                    <form action="{{ route('admin.publications.destroy', $publication->id) }}" 
+                                    <form action="{{ route('admin.chat-rooms.destroy', $room->id) }}" 
                                           method="POST" 
                                           style="display: inline;"
-                                          onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette publication et tous ses commentaires ?')">
+                                          onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette room et tous ses messages ?')">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="btn btn-sm btn-outline-danger" title="Supprimer">
@@ -437,14 +445,14 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="8" class="text-center py-5">
+                            <td colspan="9" class="text-center py-5">
                                 <div class="text-muted">
-                                    <i class="fas fa-newspaper fa-3x mb-3"></i>
-                                    <h5>Aucune publication trouvée</h5>
-                                    <p>Aucune publication ne correspond à vos critères de recherche.</p>
-                                    <a href="{{ route('admin.publications.create') }}" class="btn btn-primary">
+                                    <i class="fas fa-comments fa-3x mb-3"></i>
+                                    <h5>Aucune chat room trouvée</h5>
+                                    <p>Aucune room ne correspond à vos critères de recherche.</p>
+                                    <a href="{{ route('admin.chat-rooms.create') }}" class="btn btn-primary">
                                         <i class="fas fa-plus me-1"></i>
-                                        Créer une nouvelle publication
+                                        Créer une nouvelle room
                                     </a>
                                 </div>
                             </td>
@@ -454,15 +462,15 @@
                 </table>
             </div>
             
-            @if($publications->hasPages())
+            @if($chatRooms->hasPages())
             <div class="card-footer bg-white border-0">
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="text-muted small">
-                        Affichage de {{ $publications->firstItem() }} à {{ $publications->lastItem() }} 
-                        sur {{ $publications->total() }} publications
+                        Affichage de {{ $chatRooms->firstItem() }} à {{ $chatRooms->lastItem() }} 
+                        sur {{ $chatRooms->total() }} chat rooms
                     </div>
                     <div>
-                        {{ $publications->appends(request()->query())->links('pagination::bootstrap-4') }}
+                        {{ $chatRooms->appends(request()->query())->links('pagination::bootstrap-4') }}
                     </div>
                 </div>
             </div>
@@ -476,69 +484,16 @@
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
-<style>
-.publication-image {
-    transition: transform 0.2s ease;
-}
-
-.publication-image:hover {
-    transform: scale(1.05);
-}
-
-.table-hover tbody tr:hover {
-    background-color: rgba(0, 123, 255, 0.05);
-}
-
-.select2-container--default .select2-selection--single {
-    height: 38px;
-    border: 1px solid #ced4da;
-}
-
-.select2-container--default .select2-selection--single .select2-selection__rendered {
-    line-height: 36px;
-    padding-left: 12px;
-}
-
-.card {
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    border: 1px solid rgba(0, 0, 0, 0.125);
-}
-
-.badge {
-    font-size: 0.75em;
-}
-
-.avatar-sm {
-    flex-shrink: 0;
-}
-
-.btn-group .btn {
-    border-radius: 0.375rem !important;
-    margin-right: 2px;
-}
-
-.stats-container {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-}
-
-.stat-item {
-    text-align: center;
-    min-width: 40px;
-}
-</style>
-
 <script>
 document.addEventListener('DOMContentLoaded', function(){
     // Gestion de la sélection multiple
-    const selectAllHeader = document.getElementById('select-all-publications');
-    const selectAllTable = document.getElementById('select-all-publications-table');
-    const checkboxes = document.querySelectorAll('.pub-checkbox');
+    const selectAllHeader = document.getElementById('select-all-rooms');
+    const selectAllTable = document.getElementById('select-all-rooms-table');
+    const checkboxes = document.querySelectorAll('.room-checkbox');
     
     // Synchroniser les deux checkboxes "Tout sélectionner"
     function syncSelectAll() {
-        const checkedCount = document.querySelectorAll('.pub-checkbox:checked').length;
+        const checkedCount = document.querySelectorAll('.room-checkbox:checked').length;
         const totalCount = checkboxes.length;
         
         if (selectAllHeader) {
@@ -552,7 +507,7 @@ document.addEventListener('DOMContentLoaded', function(){
         }
         
         // Mettre à jour le texte du bouton d'action
-        const applyBtn = document.getElementById('apply-bulk-publications');
+        const applyBtn = document.getElementById('apply-bulk-rooms');
         if (applyBtn) {
             if (checkedCount > 0) {
                 applyBtn.innerHTML = `<i class="fas fa-play me-1"></i>Appliquer (${checkedCount})`;
@@ -582,12 +537,12 @@ document.addEventListener('DOMContentLoaded', function(){
     });
 
     // Gestion des actions en masse
-    const applyBulkBtn = document.getElementById('apply-bulk-publications');
+    const applyBulkBtn = document.getElementById('apply-bulk-rooms');
     if (applyBulkBtn) {
         applyBulkBtn.addEventListener('click', function(e){
             e.preventDefault();
-            const action = document.getElementById('bulk-action-publications').value;
-            const ids = Array.from(document.querySelectorAll('.pub-checkbox:checked')).map(cb => cb.value);
+            const action = document.getElementById('bulk-action-rooms').value;
+            const ids = Array.from(document.querySelectorAll('.room-checkbox:checked')).map(cb => cb.value);
             
             if (!action) {
                 alert('⚠️ Veuillez sélectionner une action à effectuer.');
@@ -595,23 +550,23 @@ document.addEventListener('DOMContentLoaded', function(){
             }
             
             if (ids.length === 0) {
-                alert('⚠️ Veuillez sélectionner au moins une publication.');
+                alert('⚠️ Veuillez sélectionner au moins une room.');
                 return;
             }
 
             let confirmMessage = '';
             switch(action) {
-                case 'approve':
-                    confirmMessage = `✅ Approuver ${ids.length} publication(s) sélectionnée(s) ?`;
+                case 'activate':
+                    confirmMessage = `✅ Activer ${ids.length} room(s) sélectionnée(s) ?`;
                     break;
-                case 'disapprove':
-                    confirmMessage = `❌ Désapprouver ${ids.length} publication(s) sélectionnée(s) ?`;
+                case 'deactivate':
+                    confirmMessage = `❌ Désactiver ${ids.length} room(s) sélectionnée(s) ?`;
                     break;
                 case 'delete':
-                    confirmMessage = `🗑️ Êtes-vous sûr de vouloir supprimer ${ids.length} publication(s) sélectionnée(s) ?\n\nCette action supprimera aussi tous les commentaires associés et est irréversible.`;
+                    confirmMessage = `🗑️ Êtes-vous sûr de vouloir supprimer ${ids.length} room(s) sélectionnée(s) ?\n\nCette action supprimera aussi tous les messages et participants associés et est irréversible.`;
                     break;
                 default:
-                    confirmMessage = `Confirmer l'action sur ${ids.length} publication(s) ?`;
+                    confirmMessage = `Confirmer l'action sur ${ids.length} room(s) ?`;
             }
 
             if (!confirm(confirmMessage)) {
@@ -621,7 +576,7 @@ document.addEventListener('DOMContentLoaded', function(){
             // Créer et soumettre le formulaire
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = '{{ route("admin.publications.bulk") }}';
+            form.action = '{{ route("admin.chat-rooms.bulk") }}';
             form.style.display = 'none';
             
             // Token CSRF
@@ -649,42 +604,12 @@ document.addEventListener('DOMContentLoaded', function(){
         });
     }
 
-    // Initialiser Select2 pour la sélection d'auteur
-    if (typeof $ !== 'undefined' && $('.select2-author').length) {
-        $('.select2-author').select2({
-            placeholder: '🔍 Rechercher un auteur...',
+    // Initialiser Select2 pour la sélection de créateur
+    if (typeof $ !== 'undefined' && $('.select2-creator').length) {
+        $('.select2-creator').select2({
+            placeholder: '🔍 Rechercher un créateur...',
             allowClear: true,
-            width: '100%',
-            ajax: {
-                url: '{{ route("admin.users.search") }}',
-                dataType: 'json',
-                delay: 250,
-                data: function(params) {
-                    return {
-                        q: params.term,
-                        page: params.page || 1
-                    };
-                },
-                processResults: function(data) {
-                    return {
-                        results: data.results || [],
-                        pagination: {
-                            more: data.pagination ? data.pagination.more : false
-                        }
-                    };
-                },
-                cache: true
-            },
-            minimumInputLength: 2,
-            templateResult: function(user) {
-                if (user.loading) {
-                    return user.text;
-                }
-                return $('<span><i class="fas fa-user me-2"></i>' + user.text + '</span>');
-            },
-            templateSelection: function(user) {
-                return user.text || user.id;
-            }
+            width: '100%'
         });
     }
 
@@ -694,25 +619,6 @@ document.addEventListener('DOMContentLoaded', function(){
         params.set('export', 'csv');
         window.open(window.location.pathname + '?' + params.toString(), '_blank');
     };
-
-    // Initialisation des tooltips Bootstrap si disponible
-    if (typeof bootstrap !== 'undefined') {
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
-        });
-    }
-
-    // Prévisualisation des images au survol
-    document.querySelectorAll('.publication-image').forEach(img => {
-        img.addEventListener('mouseenter', function() {
-            this.style.zIndex = '1000';
-        });
-        
-        img.addEventListener('mouseleave', function() {
-            this.style.zIndex = 'auto';
-        });
-    });
 
     // Initialiser la synchronisation
     syncSelectAll();

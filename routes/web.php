@@ -231,6 +231,22 @@ Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.'
     Route::put('/collectes/{collecte}', [CollecteController::class, 'update'])->name('collectes.update');
     Route::delete('/collectes/{collecte}', [CollecteController::class, 'destroy'])->name('collectes.destroy');
 
+    // Gestion des Chat Rooms
+    Route::resource('chat-rooms', \App\Http\Controllers\Admin\ChatRoomController::class);
+    Route::post('chat-rooms/bulk', [\App\Http\Controllers\Admin\ChatRoomController::class, 'bulk'])->name('chat-rooms.bulk');
+    Route::patch('chat-rooms/{chatRoom}/toggle-status', [\App\Http\Controllers\Admin\ChatRoomController::class, 'toggleStatus'])->name('chat-rooms.toggle-status');
+    Route::patch('chat-rooms/{chatRoom}/regenerate-code', [\App\Http\Controllers\Admin\ChatRoomController::class, 'regenerateInviteCode'])->name('chat-rooms.regenerate-code');
+    
+    // Gestion des participants
+    Route::get('chat-rooms/{chatRoom}/participants', [\App\Http\Controllers\Admin\ChatRoomController::class, 'participants'])->name('chat-rooms.participants');
+    Route::post('chat-rooms/{chatRoom}/participants', [\App\Http\Controllers\Admin\ChatRoomController::class, 'addParticipant'])->name('chat-rooms.add-participant');
+    Route::delete('chat-rooms/{chatRoom}/participants/{user}', [\App\Http\Controllers\Admin\ChatRoomController::class, 'removeParticipant'])->name('chat-rooms.remove-participant');
+    Route::patch('chat-rooms/{chatRoom}/participants/{user}/ban', [\App\Http\Controllers\Admin\ChatRoomController::class, 'toggleBan'])->name('chat-rooms.toggle-ban');
+    
+    // Export des données
+    Route::get('chat-rooms/{chatRoom}/export-messages', [\App\Http\Controllers\Admin\ChatRoomController::class, 'exportMessages'])->name('chat-rooms.export-messages');
+    Route::get('chat-rooms/{chatRoom}/export-participants', [\App\Http\Controllers\Admin\ChatRoomController::class, 'exportParticipants'])->name('chat-rooms.export-participants');
+
 
     //gestion avis et reclamation
     Route::resource('reclamations', ReclamationController::class);
