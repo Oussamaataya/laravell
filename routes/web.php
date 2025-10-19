@@ -97,25 +97,67 @@ Route::get('/publications', [PublicationController::class, 'index'])->name('publ
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('publications', AdminPublicationController::class);
+    // Bulk actions for publications
+    Route::post('publications/bulk', [AdminPublicationController::class, 'bulkAction'])->name('publications.bulk');
         Route::patch('publications/{publication}/approve', [AdminPublicationController::class, 'approvePublication'])->name('publications.approve');
+
+    // AJAX user search for Select2
+    Route::get('users/search', [\App\Http\Controllers\Admin\UserManagementController::class, 'search'])->name('users.search');
 
         // Gestion des commentaires
         Route::get('commentaires', [\App\Http\Controllers\Admin\CommentaireController::class, 'index'])->name('commentaires.index');
-        Route::delete('commentaires/{commentaire}', [\App\Http\Controllers\Admin\CommentaireController::class, 'destroy'])->name('commentaires.destroy');
+    Route::post('commentaires/bulk', [\App\Http\Controllers\Admin\CommentaireController::class, 'bulkAction'])->name('commentaires.bulk');
+    Route::delete('commentaires/{commentaire}', [\App\Http\Controllers\Admin\CommentaireController::class, 'destroy'])->name('commentaires.destroy');
     });
 });
 
 // Routes pour les publications (authentifiées)
 Route::middleware('auth')->group(function () {
     Route::get('/publications/create', [PublicationController::class, 'create'])->name('publications.create');
+    Route::post('/publications/analyze-image', [PublicationController::class, 'analyzeImage'])->name('publications.analyze-image');
+    Route::post('/publications/analyze-content', [PublicationController::class, 'analyzeContent'])->name('publications.analyze-content');
+    
+    // Nouvelles routes IA
+    Route::post('/publications/analyze-ai', [PublicationController::class, 'analyzeWithAI'])->name('publications.analyze-ai');
+    Route::post('/publications/generate-suggestions', [PublicationController::class, 'generateContentSuggestions'])->name('publications.generate-suggestions');
+    Route::post('/publications/improve-content', [PublicationController::class, 'improveContent'])->name('publications.improve-content');
+    Route::post('/publications/generate-hashtags', [PublicationController::class, 'generateHashtags'])->name('publications.generate-hashtags');
+    Route::get('/publications/content-calendar', [PublicationController::class, 'getContentCalendar'])->name('publications.content-calendar');
+    
     Route::post('/publications', [PublicationController::class, 'store'])->name('publications.store');
     Route::get('/publications/{publication}/edit', [PublicationController::class, 'edit'])->name('publications.edit');
     Route::put('/publications/{publication}', [PublicationController::class, 'update'])->name('publications.update');
     Route::delete('/publications/{publication}', [PublicationController::class, 'destroy'])->name('publications.destroy');
 });
 
+// Routes pour le système de chat (authentifiées)
+Route::middleware('auth')->prefix('chat')->name('chat.')->group(function () {
+    // Pages principales
+    Route::get('/', [ChatController::class, 'index'])->name('index');
+    Route::get('/room/{roomId}', [ChatController::class, 'showRoom'])->name('room');
+    
+    // Gestion des rooms
+    Route::post('/rooms', [ChatController::class, 'createRoom'])->name('rooms.create');
+    Route::post('/rooms/{roomId}/join', [ChatController::class, 'joinRoom'])->name('rooms.join');
+    Route::post('/rooms/join-by-code', [ChatController::class, 'joinByCode'])->name('rooms.join-by-code');
+    Route::delete('/rooms/{roomId}/leave', [ChatController::class, 'leaveRoom'])->name('rooms.leave');
+    Route::get('/rooms/search', [ChatController::class, 'searchRooms'])->name('rooms.search');
+    Route::get('/rooms/{roomId}/stats', [ChatController::class, 'getRoomStats'])->name('rooms.stats');
+    
+    // Gestion des messages
+    Route::get('/rooms/{roomId}/messages', [ChatController::class, 'getMessages'])->name('messages.get');
+    Route::post('/rooms/{roomId}/messages', [ChatController::class, 'sendMessage'])->name('messages.send');
+    Route::put('/messages/{messageId}', [ChatController::class, 'editMessage'])->name('messages.edit');
+    Route::delete('/messages/{messageId}', [ChatController::class, 'deleteMessage'])->name('messages.delete');
+    
+    // Gestion des participants
+    Route::post('/rooms/{roomId}/participants/{userId}/manage', [ChatController::class, 'manageParticipant'])->name('participants.manage');
+});
+
 // Route pour afficher une publication spécifique (doit être après les routes spécifiques)
 Route::get('/publications/{publication}', [PublicationController::class, 'show'])->name('publications.show');
+// Route to serve publication images when storage link is not accessible
+Route::get('/publications/image/{filename}', [PublicationController::class, 'image'])->name('publications.image');
 
 // Routes pour le recyclage
 Route::get('/recyclages', [RecyclageController::class, 'index'])->name('recyclages.index');

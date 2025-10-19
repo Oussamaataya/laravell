@@ -44,6 +44,13 @@
                     <i class="fas fa-newspaper me-1"></i>Publications
                   </a>
                 </li>
+                @auth
+                <li class="nav-item">
+                  <a class="nav-link" href="{{ route('chat.index') }}">
+                    <i class="fas fa-comments me-1"></i>Chat
+                  </a>
+                </li>
+                @endauth
                 <li class="nav-item">
                   <a class="nav-link" href="{{ route('recyclages.index') }}">
                     <i class="fas fa-recycle me-1"></i>Recyclage

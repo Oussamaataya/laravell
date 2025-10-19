@@ -11,7 +11,15 @@ class Publication extends Model
         'contenu',
         'image',
         'user_id',
-        'is_approved'
+        'is_approved',
+        'event_type',
+        'ai_description',
+        'ai_hashtags',
+    ];
+
+    protected $casts = [
+        'ai_hashtags' => 'array',
+        'is_approved' => 'boolean',
     ];
 
     public function user()

@@ -11,6 +11,9 @@
         </div>
         <div class="col-md-4 text-end align-self-center">
             @auth
+                <a href="{{ route('chat.index') }}" class="btn btn-outline-primary me-2">
+                    <i class="fas fa-comments me-2"></i>Chat
+                </a>
                 <a href="{{ route('publications.create') }}" class="btn btn-primary">
                     <i class="fas fa-plus-circle me-2"></i>Nouvelle publication
                 </a>

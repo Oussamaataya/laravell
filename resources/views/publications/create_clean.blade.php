@@ -264,3 +264,4 @@ document.addEventListener('DOMContentLoaded', function() {
 {{-- Chargement du JavaScript IA externe --}}
 <script src="{{ asset('js/publication-ai.js') }}"></script>
 @endpush
+@endsection

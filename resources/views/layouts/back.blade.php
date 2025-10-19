@@ -422,6 +422,26 @@
       width: 100% !important;
       max-width: none !important;
     }
+
+    /* Hide footer on admin pages to avoid overlay issues */
+    body .footer { display: none !important; }
+
+    /* Sidebar active pill (match screenshots) */
+    .sidebar .nav .nav-item .nav-link.legitimate-active {
+      background: linear-gradient(90deg, #5f6ee2, #6f7bf0) !important;
+      color: #fff !important;
+      padding: 0.75rem 1rem !important;
+      border-radius: 0.75rem !important;
+      box-shadow: 0 6px 12px rgba(101,108,234,0.12) !important;
+    }
+    .sidebar .nav .nav-item .nav-link.legitimate-active .menu-title {
+      font-weight: 600 !important;
+    }
+
+    /* Bulk action controls spacing */
+    .mb-3.d-flex.align-items-center.gap-2 { gap: 0.75rem !important; }
+    .mb-3.d-flex.align-items-center.gap-2 .form-select { min-width: 180px; }
+    .mb-3.d-flex.align-items-center.gap-2 button { min-width: 110px; }
     
     .content-wrapper {
       width: 100% !important;
@@ -1076,6 +1096,10 @@
           targetLink = document.querySelector('a[href="{{ route('admin.dashboard') }}"]');
         } else if (currentRoute && currentRoute.startsWith('admin.users')) {
           targetLink = document.querySelector('a[href="{{ route('admin.users.index') }}"]');
+        } else if (currentRoute && currentRoute.startsWith('admin.publications')) {
+          targetLink = document.querySelector('a[href="{{ route('admin.publications.index') }}"]');
+        } else if (currentRoute && currentRoute.startsWith('admin.commentaires')) {
+          targetLink = document.querySelector('a[href="{{ route('admin.commentaires.index') }}"]');
         } else if (currentRoute && currentRoute.startsWith('admin.events')) {
           targetLink = document.querySelector('a[href="{{ route('admin.events.index') }}"]');
         } else if (currentRoute === 'profile.edit') {

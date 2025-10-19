@@ -13,8 +13,42 @@ class PublicationController extends Controller
 {
     public function index()
     {
-        $publications = Publication::with(['user', 'commentaires', 'likes'])->latest()->get();
-        return view('admin.publications.index', compact('publications'));
+        $query = Publication::with(['user', 'commentaires', 'likes']);
+
+        // Filters: status (approved/pending), author, search text, date range
+        if (request()->filled('status')) {
+            if (request('status') === 'approved') {
+                $query->where('is_approved', true);
+            } elseif (request('status') === 'pending') {
+                $query->where('is_approved', false);
+            }
+        }
+
+        if (request()->filled('author')) {
+            $query->where('user_id', request('author'));
+        }
+
+        if (request()->filled('q')) {
+            $q = request('q');
+            $query->where(function($qry) use ($q) {
+                $qry->where('titre', 'like', "%{$q}%")
+                    ->orWhere('contenu', 'like', "%{$q}%");
+            });
+        }
+
+        if (request()->filled('date_from')) {
+            $query->whereDate('created_at', '>=', request('date_from'));
+        }
+        if (request()->filled('date_to')) {
+            $query->whereDate('created_at', '<=', request('date_to'));
+        }
+
+        $publications = $query->latest()->paginate(15)->withQueryString();
+
+        // Authors for filter
+        $authors = \App\Models\User::orderBy('name')->pluck('name', 'id');
+
+        return view('admin.publications.index', compact('publications', 'authors'));
     }
 
     public function create()
@@ -96,7 +130,44 @@ class PublicationController extends Controller
         
         $publication->delete();
 
-        return redirect()->route('admin.publications.index')->with('success', 'Publication supprimée avec succès');
+        // Retourner à la page précédente pour conserver les filtres et la pagination
+        return redirect()->back()->with('success', 'Publication supprimée avec succès');
+    }
+
+    /**
+     * Bulk actions for publications (approve/delete)
+     */
+    public function bulkAction(Request $request)
+    {
+        $action = $request->input('action');
+        $ids = $request->input('ids', []);
+
+        if (empty($ids) || !is_array($ids)) {
+            return redirect()->back()->with('error', 'Aucune publication sélectionnée');
+        }
+
+        if ($action === 'delete') {
+            foreach ($ids as $id) {
+                $pub = Publication::find($id);
+                if ($pub) {
+                    // delete related
+                    \App\Models\Like::where('publication_id', $id)->delete();
+                    \App\Models\Commentaire::where('publication_id', $id)->delete();
+                    if ($pub->image) {
+                        Storage::disk('public')->delete($pub->image);
+                    }
+                    $pub->delete();
+                }
+            }
+            return redirect()->back()->with('success', 'Publications supprimées');
+        }
+
+        if ($action === 'approve') {
+            Publication::whereIn('id', $ids)->update(['is_approved' => true]);
+            return redirect()->back()->with('success', 'Publications approuvées');
+        }
+
+        return redirect()->back()->with('error', 'Action inconnue');
     }
 
     public function approvePublication($id)
@@ -106,5 +177,14 @@ class PublicationController extends Controller
         $publication->save();
 
         return redirect()->back()->with('success', 'Statut de la publication mis à jour');
+    }
+
+    /**
+     * Display the specified publication (admin view)
+     */
+    public function show($id)
+    {
+        $publication = Publication::with(['user', 'commentaires', 'likes'])->findOrFail($id);
+        return view('admin.publications.show', compact('publication'));
     }
 }

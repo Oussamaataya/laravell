@@ -6,6 +6,7 @@ use App\Models\Commentaire;
 use App\Models\Publication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Services\CommentToneService;
 
 class CommentaireController extends Controller
 {
@@ -18,10 +19,26 @@ class CommentaireController extends Controller
             'contenu' => 'required|string|max:1000',
         ]);
 
+        // Analyze tone and bad-words
+        $service = new CommentToneService();
+        $analysis = $service->analyze($request->contenu);
+
+        // Reject if it contains bad words or if tone is strongly negative
+        if (!empty($analysis['has_bad_words']) || ($analysis['tone'] === 'NEGATIF')) {
+            $msg = 'Votre commentaire n\'a pas été publié car il contient un langage inapproprié ou a un ton négatif.';
+            if (!empty($analysis['bad_words'])) {
+                $msg .= ' Mots détectés: ' . implode(', ', $analysis['bad_words']) . '.';
+            }
+            return redirect()->back()->with('error', $msg);
+        }
+
         Commentaire::create([
             'contenu' => $request->contenu,
             'publication_id' => $publication->id,
             'user_id' => Auth::id(),
+            'tone' => $analysis['tone'],
+            'has_bad_words' => $analysis['has_bad_words'],
+            'bad_words' => $analysis['bad_words'],
         ]);
 
         return redirect()->back()->with('success', 'Commentaire ajouté avec succès!');
@@ -43,8 +60,23 @@ class CommentaireController extends Controller
             'contenu' => 'required|string|max:1000',
         ]);
 
+        // Re-analyze on update
+        $service = new CommentToneService();
+        $analysis = $service->analyze($request->contenu);
+
+        if (!empty($analysis['has_bad_words']) || ($analysis['tone'] === 'NEGATIF')) {
+            $msg = 'Votre modification n\'a pas été enregistrée car le contenu est inapproprié ou a un ton négatif.';
+            if (!empty($analysis['bad_words'])) {
+                $msg .= ' Mots détectés: ' . implode(', ', $analysis['bad_words']) . '.';
+            }
+            return redirect()->back()->with('error', $msg);
+        }
+
         $commentaire->update([
             'contenu' => $request->contenu,
+            'tone' => $analysis['tone'],
+            'has_bad_words' => $analysis['has_bad_words'],
+            'bad_words' => $analysis['bad_words'],
         ]);
 
         return redirect()->back()->with('success', 'Commentaire mis à jour avec succès!');

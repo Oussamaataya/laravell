@@ -9,6 +9,8 @@
   
   <!-- plugins:css -->
   @vite(['resources/assets-back/vendors/feather/feather.css'])
+  <!-- FontAwesome (used by admin views for action icons) -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-pbQj7fM2aQYkG0xE1mZg0bJkq3q1G9X2l5VYJzK9X0s2r3bK6Gz1YJkq3q1G9X2l5VYJzK9X0s2r3bK6Gz1YJkq==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   @vite(['resources/assets-back/vendors/ti-icons/css/themify-icons.css'])
   @vite(['resources/assets-back/vendors/css/vendor.bundle.base.css'])
   @vite(['resources/assets-back/vendors/datatables.net-bs4/dataTables.bootstrap4.css'])
@@ -17,6 +19,22 @@
   
   <link rel="shortcut icon" href="images/favicon.png" />
   @stack('styles')
+  <style>
+    /* Basic sidebar active state styling to match admin theme */
+    .sidebar .nav .nav-item .nav-link.legitimate-active {
+      background-color: #667eea !important;
+      color: #fff !important;
+      border-radius: 0.375rem !important;
+      box-shadow: 0 2px 4px rgba(102,126,234,0.25) !important;
+    }
+    .sidebar .nav .nav-item .nav-link.legitimate-active .menu-icon,
+    .sidebar .nav .nav-item .nav-link.legitimate-active .menu-title { color: #fff !important; }
+
+    /* Pagination tweaks for bootstrap look */
+    .pagination { display:flex; padding-left:0; list-style:none; }
+    .page-link { color:#667eea; border:1px solid #dee2e6; padding:0.5rem 0.75rem; margin-left:-1px; }
+    .page-item.active .page-link { background-color:#667eea; color:#fff; border-color:#667eea; }
+  </style>
 </head>
 
 <body>
@@ -160,6 +178,20 @@
           </li>
 
           <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('admin.publications.*') ? 'active' : '' }}" href="{{ route('admin.publications.index') }}">
+              <i class="icon-docs menu-icon"></i>
+              <span class="menu-title">Publications</span>
+            </a>
+          </li>
+
+          <li class="nav-item">
+            <a class="nav-link {{ request()->routeIs('admin.commentaires.*') ? 'active' : '' }}" href="{{ route('admin.commentaires.index') }}">
+              <i class="icon-speech menu-icon"></i>
+              <span class="menu-title">Commentaires</span>
+            </a>
+          </li>
+
+          <li class="nav-item">
             <a class="nav-link" href="{{ route('home') }}" target="_blank">
               <i class="icon-globe menu-icon"></i>
               <span class="menu-title">Voir le site</span>
@@ -207,5 +239,34 @@
   @vite(['resources/assets-back/js/Chart.roundedBarCharts.js'])
   
   @stack('scripts')
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const currentRoute = '{{ request()->route()->getName() }}';
+      function resetAllLinks() {
+        document.querySelectorAll('.sidebar .nav-link').forEach(l=>{
+          l.classList.remove('legitimate-active','active','mm-active','show');
+        });
+      }
+      function setTarget(href) {
+        const link = document.querySelector('a[href="'+href+'"]');
+        if(link) link.classList.add('legitimate-active');
+      }
+      setTimeout(function(){
+        resetAllLinks();
+        if(currentRoute && currentRoute.startsWith('admin.publications')) {
+          setTarget('{{ route('admin.publications.index') }}');
+        } else if(currentRoute && currentRoute.startsWith('admin.commentaires')) {
+          setTarget('{{ route('admin.commentaires.index') }}');
+        } else if(currentRoute && currentRoute.startsWith('admin.users')) {
+          setTarget('{{ route('admin.users.index') }}');
+        } else if(currentRoute && currentRoute.startsWith('admin.events')) {
+          setTarget('{{ route('admin.events.index') }}');
+        } else if(currentRoute === 'admin.dashboard') {
+          setTarget('{{ route('admin.dashboard') }}');
+        }
+      }, 300);
+    });
+  </script>
 </body>
 </html>

@@ -41,6 +41,21 @@ class UserManagementController extends Controller
     }
 
     /**
+     * AJAX search for users (Select2)
+     */
+    public function search(Request $request)
+    {
+        $q = $request->input('q');
+        $query = User::query();
+        if ($q) {
+            $query->where('name', 'like', "%{$q}%")->orWhere('email', 'like', "%{$q}%");
+        }
+        $users = $query->orderBy('name')->limit(20)->get(['id', 'name']);
+        $results = $users->map(function($u){ return ['id' => $u->id, 'text' => $u->name]; });
+        return response()->json(['results' => $results]);
+    }
+
+    /**
      * Show the form for creating a new user
      */
     public function create()

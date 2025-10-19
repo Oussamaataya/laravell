@@ -98,4 +98,70 @@ class User extends Authenticatable
     {
         $this->update(['last_login_at' => now()]);
     }
+
+    /**
+     * Get the publications for the user.
+     */
+    public function publications()
+    {
+        return $this->hasMany(Publication::class);
+    }
+
+    /**
+     * Get the commentaires for the user.
+     */
+    public function commentaires()
+    {
+        return $this->hasMany(Commentaire::class);
+    }
+
+    /**
+     * Get the likes for the user.
+     */
+    public function likes()
+    {
+        return $this->hasMany(Like::class);
+    }
+
+    /**
+     * Get the event registrations for the user.
+     */
+    public function eventRegistrations()
+    {
+        return $this->hasMany(EventRegistration::class);
+    }
+
+    /**
+     * Get the chat rooms created by the user.
+     */
+    public function createdChatRooms()
+    {
+        return $this->hasMany(ChatRoom::class, 'created_by');
+    }
+
+    /**
+     * Get the chat rooms where the user participates.
+     */
+    public function chatRooms()
+    {
+        return $this->belongsToMany(ChatRoom::class, 'chat_participants', 'user_id', 'chat_room_id')
+                    ->withPivot(['role', 'joined_at', 'last_seen', 'is_muted', 'is_banned'])
+                    ->withTimestamps();
+    }
+
+    /**
+     * Get the chat messages sent by the user.
+     */
+    public function chatMessages()
+    {
+        return $this->hasMany(ChatMessage::class);
+    }
+
+    /**
+     * Get the chat participations of the user.
+     */
+    public function chatParticipations()
+    {
+        return $this->hasMany(ChatParticipant::class);
+    }
 }
