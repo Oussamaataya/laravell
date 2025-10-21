@@ -60,7 +60,7 @@
                             <small class="text-muted">{{ $room->description }}</small>
                         </div>
                         <a href="{{ route('chat.index') }}" class="btn btn-outline-secondary btn-sm">
-                            <i class="fas fa-arrow-left"></i> Retour
+                            <i class="fas fa-arrow-left"></i> Retour à la liste des salles
                         </a>
                     </div>
                 </div>

@@ -30,7 +30,7 @@
                         </div>
                         
                         <div class="mb-3">
-                            <label for="contenu" class="form-label">Contenu <span class="text-danger">*</span></label>
+                            <label for="contenu" class="form-label">Contenu pour votre publications<span class="text-danger">*</span></label>
                             <textarea class="form-control @error('contenu') is-invalid @enderror" id="contenu" name="contenu" rows="6" required>{{ old('contenu') }}</textarea>
                             
                             {{-- Moderation feedback --}}
@@ -51,7 +51,7 @@
                         </div>
                         
                         <div class="mb-3">
-                            <label for="image" class="form-label">Image (optionnelle)</label>
+                            <label for="image" class="form-label">Image pour votre publications (optionnelle)</label>
                             <input type="file" class="form-control @error('image') is-invalid @enderror" id="image" name="image" accept="image/*">
                             <div class="form-text">Formats acceptés: JPG, PNG, GIF. Taille maximale: 2MB</div>
                             @error('image')
