@@ -140,7 +140,7 @@ document.addEventListener('DOMContentLoaded', function() {
 #message-input {
     resize: none;
     border-radius: 20px;
-    padding-right: 60px;
+    padding-right: 59px;
 }
 </style>
 @endsection

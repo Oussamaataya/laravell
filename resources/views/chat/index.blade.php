@@ -9,7 +9,7 @@
         <div class="col-md-4 col-lg-3">
             <div class="card h-100">
                 <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-comments"></i> Chat Rooms</h5>
+                    <h5 class="mb-0"><i class="fas fa-comments"></i> Chat Rooms <span class="badge bg-primary">{{ $userRooms->count() }}</span></h5>
                     <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#createRoomModal">
                         <i class="fas fa-plus"></i>
                     </button>
@@ -18,7 +18,7 @@
                     {{-- Barre de recherche --}}
                     <div class="p-3 border-bottom">
                         <div class="input-group">
-                            <input type="text" class="form-control form-control-sm" id="searchRooms" placeholder="Rechercher une room...">
+                            <input type="text" class="form-control form-control-sm" id="searchRooms" placeholder="Rechercher une room aller....">
                             <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#joinByCodeModal">
                                 <i class="fas fa-key"></i>
                             </button>
