@@ -171,6 +171,18 @@ Route::middleware('auth')->group(function () {
     Route::delete('/recyclages/{recyclage}', [RecyclageController::class, 'destroy'])->name('recyclages.destroy');
 });
 
+
+
+// Routes pour le recyclage (authentifiées) - AVANT la route show pour éviter les conflits
+Route::middleware('auth')->group(function () {
+    Route::get('/recyclages/create', [RecyclageController::class, 'create'])->name('recyclages.create');
+    Route::post('/recyclages', [RecyclageController::class, 'store'])->name('recyclages.store');
+    Route::get('/recyclages/{recyclage}/edit', [RecyclageController::class, 'edit'])->name('recyclages.edit');
+    Route::put('/recyclages/{recyclage}', [RecyclageController::class, 'update'])->name('recyclages.update');
+    Route::delete('/recyclages/{recyclage}', [RecyclageController::class, 'destroy'])->name('recyclages.destroy');
+});
+
+
 // Route show APRÈS les routes spécifiques pour éviter les conflits
 Route::get('/recyclages/{recyclage}', [RecyclageController::class, 'show'])->name('recyclages.show');
 
