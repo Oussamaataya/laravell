@@ -76,4 +76,17 @@ class Recyclage extends Model
 
         return $statuts[$this->statut] ?? $this->statut;
     }
+ public function getStatutFormateAttribute2()
+    {
+        $statuts = [
+            'planifie' => 'Planifié',
+            'en_cours' => 'En cours',
+            'termine' => 'Terminé',
+            'annule' => 'Annulé'
+        ];
+
+        return $statuts[$this->statut] ?? $this->statut;
+    }
+
+
 }
