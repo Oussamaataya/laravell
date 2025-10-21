@@ -10,12 +10,27 @@ use App\Models\ChatRoom;
 use App\Models\ChatMessage;
 use App\Models\ChatParticipant;
 use App\Models\User;
+use App\Services\OpenRouterService;
 
 class ChatController extends Controller
 {
-    public function __construct()
+    public function __construct1()
     {
         // Le middleware est déjà appliqué dans les routes
+    }
+
+    protected $openRouterService;
+
+    public function __construct(OpenRouterService $openRouterService)
+    {
+        $this->openRouterService = $openRouterService;
+    }
+
+    public function handleRequest(Request $request)
+    {
+        $message = $request->input('message');
+        $response = $this->openRouterService->getResponse($message);
+        return response()->json(['response' => $response]);
     }
 
     // === GESTION DES ROOMS ===
