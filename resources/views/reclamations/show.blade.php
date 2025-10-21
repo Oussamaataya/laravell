@@ -124,7 +124,7 @@
                         </span>
                     @else
                         <span class="badge bg-secondary px-4 py-3 rounded-pill fw-bold fs-5">
-                            <i class="fas fa-hourglass-half me-2"></i>En Attente
+                            <i class="fas fa-hourglass-half me-2"></i>En Attente !
                         </span>
                     @endif
                 </div>

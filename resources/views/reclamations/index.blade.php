@@ -80,7 +80,7 @@
     .view-btn {
         background: linear-gradient(135deg, #dc3545, #fd7e14);
         border: none;
-        border-radius: 50px;
+        border-radius: 59px;
         padding: 10px 20px;
         font-weight: bold;
         transition: all 0.3s ease;

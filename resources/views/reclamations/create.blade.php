@@ -25,7 +25,7 @@
         overflow: hidden;
     }
     .form-card {
-        background: white;
+        background: green;
         border-radius: var(--border-radius);
         box-shadow: var(--card-shadow);
         overflow: hidden;
@@ -69,7 +69,7 @@
     <div class="container position-relative">
         <div class="row align-items-center">
             <div class="col-lg-8">
-                <h1 class="display-5 fw-bold mb-3" data-aos="fade-up">Nouvelle Réclamation</h1>
+                <h1 class="display-5 fw-bold mb-3" data-aos="fade-up">Nouvelle Réclamation !!!!</h1>
                 <p class="lead mb-0" data-aos="fade-up" data-aos-delay="200">Partagez votre préoccupation pour que nous puissions l'examiner et y répondre.</p>
             </div>
             <div class="col-lg-4 text-center">

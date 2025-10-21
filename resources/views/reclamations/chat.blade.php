@@ -18,7 +18,7 @@
 </head>
 <body>
     <div class="chat-container">
-        <h2>Chatbot de Réclamations</h2>
+        <h2>Chatbot de Réclamations : </h2>
         <div class="messages" id="messages"></div>
         <input type="text" id="userMessage" placeholder="Tapez votre message...">
         <button id="sendBtn">Envoyer</button>
